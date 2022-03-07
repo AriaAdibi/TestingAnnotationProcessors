@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <artifactId>annotationprocessortest</artifactId>
+        <groupId>org.aria</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>tests</artifactId>
+
+    <!-- Dependencies -->
+    <dependencies>
+
+        <dependency>
+            <groupId>org.aria</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
+        <!-- Use Bare Processors -->
+        <dependency>
+            <groupId>org.aria</groupId>
+            <artifactId>processorswithoutdependency</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Use Google Common Basic Processor -->
+<!--        <dependency>-->
+<!--            <groupId>org.aria</groupId>-->
+<!--            <artifactId>processorswithdependency.googlecommon</artifactId>-->
+<!--            <version>1.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+    </dependencies>
+
+
+    <!-- Build Plugins -->
+    <build>
+        <plugins>
+
+            <!-- Using processor-module-path to locate the processors -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-processorpath-variable</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <outputProperty>processor-module-path</outputProperty>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <encoding>UTF-8</encoding>
+
+                    <compilerArgs>
+                        <compilerArg>--processor-module-path</compilerArg>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <compilerArg>${processor-module-path}</compilerArg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
