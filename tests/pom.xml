@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>annotationProcessorTest</artifactId>
+        <groupId>org.aria</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>tests</artifactId>
+
+    <!-- Dependencies -->
+    <dependencies>
+
+        <dependency>
+            <groupId>org.aria</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
+        <!-- Use Bare Processors -->
+        <dependency>
+            <groupId>org.aria</groupId>
+            <artifactId>processorswithoutdependency</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Use Google Common Basic Processor -->
+<!--        <dependency>-->
+<!--            <groupId>org.aria</groupId>-->
+<!--            <artifactId>processorswithdependency.googlecommon</artifactId>-->
+<!--            <version>1.0-SNAPSHOT</version>-->
+<!--        </dependency>-->
+
+    </dependencies>
+
+
+<!--    &lt;!&ndash; Build Plugins &ndash;&gt;-->
+<!--    <build>-->
+<!--        <plugins>-->
+
+<!--            &lt;!&ndash; Pure Maven Method for Configuring the Processor(s) &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <annotationProcessors>-->
+<!--                        <annotationProcessor>-->
+<!--                            processors.BareProcessor-->
+<!--                        </annotationProcessor>-->
+<!--                    </annotationProcessors>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+
+<!--        </plugins>-->
+<!--    </build>-->
+
+</project>
