@@ -4,27 +4,29 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.aria</groupId>
-        <artifactId>customannotationsandtheirprocessors</artifactId>
+        <artifactId>annotationprocessortest</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>processorswithdependency.googlecommon</artifactId>
+    <artifactId>processorswithoutdependency</artifactId>
 
     <!-- Dependencies -->
     <dependencies>
 
         <dependency>
-            <groupId>com.google.auto</groupId>
-            <artifactId>auto-common</artifactId>
+            <groupId>org.aria</groupId>
+            <artifactId>annotations</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service-annotations</artifactId>
-            <version>1.0.1</version>
-            <scope>compile</scope>
+            <artifactId>auto-service</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
         </dependency>
 
     </dependencies>
