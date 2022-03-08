@@ -21,7 +21,7 @@ import java.time.LocalDate;
 public class PoeticBareProcessor extends BareProcessor{
 
   @Override boolean processEach(TypeElement annotation, Element element) {
-    System.err.println("****Entering PoeticBareProcessor .... ****");
+    System.err.println("*** *Entering PoeticBareProcessor .... ****");
     int nLines = element.getAnnotation(Epilogue.class).nLines();
     if( nLines > 0 )
       return false;

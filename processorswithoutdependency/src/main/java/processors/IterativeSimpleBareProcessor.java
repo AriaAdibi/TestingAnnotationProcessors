@@ -7,13 +7,16 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.util.Map;
 
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
@@ -22,9 +25,16 @@ public class IterativeSimpleBareProcessor extends BareProcessor{
   int finalSum = 0;
 
   @Override boolean processEach(TypeElement annotation, Element element) throws IOException {
-    System.err.println("****Entering IterativeSimpleBareProcessor .... ****");
+    System.err.println("**** Entering IterativeSimpleBareProcessor .... ****");
     Annotation e = element.getAnnotation(Epilogue.class);
     var em = element.getAnnotationMirrors().get(0);
+    int res;
+    for(Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : em.getElementValues().entrySet() ) {
+      ExecutableElement annotationName = entry.getKey();
+      AnnotationValue annotationValue = entry.getValue();
+      res = (int) annotationValue.getValue();
+    }
+
     int nLines = element.getAnnotation(Epilogue.class).nLines();
 //    int nLines = element.getAnnotationMirrors().get(0);
 
