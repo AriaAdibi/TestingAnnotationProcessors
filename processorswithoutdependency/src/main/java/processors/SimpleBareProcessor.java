@@ -1,8 +1,5 @@
 package processors;
 
-import com.google.auto.service.AutoService;
-
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -14,7 +11,6 @@ import java.io.PrintWriter;
 
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
-//@AutoService(Processor.class)
 public class SimpleBareProcessor extends BareProcessor{
 
   @Override boolean processEach(TypeElement annotation, Element element) throws IOException {

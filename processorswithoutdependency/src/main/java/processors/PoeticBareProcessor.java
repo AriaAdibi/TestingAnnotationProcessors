@@ -1,11 +1,9 @@
 package processors;
 
-import com.google.auto.service.AutoService;
 import com.squareup.javapoet.*;
 import customannotations.Epilogue;
 
 import javax.annotation.processing.Generated;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -17,7 +15,6 @@ import java.time.LocalDate;
 
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
-@AutoService(Processor.class)
 public class PoeticBareProcessor extends BareProcessor{
 
   @Override boolean processEach(TypeElement annotation, Element element) {

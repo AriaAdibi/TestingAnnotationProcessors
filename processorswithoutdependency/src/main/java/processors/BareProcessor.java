@@ -5,7 +5,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
