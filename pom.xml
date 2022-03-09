@@ -37,10 +37,17 @@
                 <scope>compile</scope>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>31.0.1-jre</version>
+                <scope>compile</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
-    <!-- Build Plugin Management -->
+    <!-- Build Plugins and Build Plugins Management -->
     <build>
         <pluginManagement>
             <plugins>
@@ -58,6 +65,39 @@
 
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <relativizeDecorationLinks>false</relativizeDecorationLinks>
+                </configuration>
+
+            </plugin>
+        </plugins>
+
     </build>
+
+    <!-- Report Plugins -->
+    <reporting>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.2.2</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.2</version>
+            </plugin>
+
+        </plugins>
+    </reporting>
 
 </project>

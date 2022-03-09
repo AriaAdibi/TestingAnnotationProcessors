@@ -20,12 +20,10 @@
             <artifactId>auto-common</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service-annotations</artifactId>
-            <version>1.0.1</version>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.google.auto.service</groupId>-->
+<!--            <artifactId>auto-service</artifactId>-->
+<!--        </dependency>-->
 
     </dependencies>
 

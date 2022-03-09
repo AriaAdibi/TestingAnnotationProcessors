@@ -1,11 +1,9 @@
 package processors;
 
 import com.google.auto.common.BasicAnnotationProcessor;
-import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -16,7 +14,7 @@ import java.io.PrintWriter;
 
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
-@AutoService(Processor.class)
+//@AutoService(Processor.class)
 public class SimpleGCommonProcessor extends BasicAnnotationProcessor {
   @Override
   protected Iterable<? extends Step> steps() {
@@ -48,7 +46,7 @@ public class SimpleGCommonProcessor extends BasicAnnotationProcessor {
             return ImmutableSet.of();
           }
 
-            @Override
+          @Override
           public ImmutableSet<String> annotations() {return ImmutableSet.of("customannotations.Epilogue");
           }
         });

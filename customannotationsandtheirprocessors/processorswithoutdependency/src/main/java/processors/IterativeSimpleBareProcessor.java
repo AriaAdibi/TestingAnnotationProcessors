@@ -1,16 +1,13 @@
 package processors;
 
-import com.google.auto.service.AutoService;
 import customannotations.Epilogue;
 
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
