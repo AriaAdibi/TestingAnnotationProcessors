@@ -1,6 +1,9 @@
+import processors.SimpleGCommonProcessor;
+
 module processorswithdependency.googlecommon {
-  requires static com.google.auto.service;
-  requires static java.compiler;
-  requires static auto.common;
+  requires auto.common;
   requires static com.google.common;
+
+  requires static java.compiler;
+  provides javax.annotation.processing.Processor with SimpleGCommonProcessor ;
 }
