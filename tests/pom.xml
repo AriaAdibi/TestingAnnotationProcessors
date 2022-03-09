@@ -40,7 +40,7 @@
     <build>
         <plugins>
 
-            <!-- Specifying the (modular) processors paths -->
+            <!-- Specifying the Classpath of the processor, using @AutoService to provide the processors names -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
