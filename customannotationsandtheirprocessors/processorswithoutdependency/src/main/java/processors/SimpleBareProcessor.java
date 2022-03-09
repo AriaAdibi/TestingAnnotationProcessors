@@ -1,5 +1,8 @@
 package processors;
 
+import com.google.auto.service.AutoService;
+
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -9,6 +12,9 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * Javadoc for {@code SimpleBareProcessor} class.
+ */
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 //@AutoService(Processor.class)

@@ -1,7 +1,9 @@
 package processors;
 
+import com.google.auto.service.AutoService;
 import customannotations.Epilogue;
 
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -12,9 +14,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 
+/**
+ * Javadoc for {@code IterativeSimpleBareProcessor} class.
+ */
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
-//@AutoService(Processor.class)
+@AutoService(Processor.class)
 public class IterativeSimpleBareProcessor extends BareProcessor{
   int finalSum = 0;
 

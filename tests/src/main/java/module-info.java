@@ -1,3 +1,6 @@
+/**
+ * Javadoc for {@code tests} module.
+ */
 module tests {
   requires static annotations;
 

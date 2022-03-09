@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <artifactId>annotationprocessortest</artifactId>
         <groupId>org.aria</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <artifactId>annotationprocessortest</artifactId>
+        <version>${revision}</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -16,22 +16,29 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.aria</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>annotations</artifactId>
         </dependency>
 
         <!-- Use Bare Processors -->
 <!--        <dependency>-->
-<!--            <groupId>org.aria</groupId>-->
+<!--            <groupId>${project.groupId}</groupId>-->
 <!--            <artifactId>processorswithoutdependency</artifactId>-->
-<!--            <version>1.0-SNAPSHOT</version>-->
+<!--            <version>${project.version}</version>-->
 <!--        </dependency>-->
 
-        <!-- Use Google Common Basic Processor -->
+        <!-- Use Google Common Basic Processors -->
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>processorswithdependency.googlecommon</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+
+        <!-- Use Processors that uses the Custom Annotation Utilities -->
         <dependency>
-            <groupId>org.aria</groupId>
-            <artifactId>processorswithdependency.googlecommon</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>processorutilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
@@ -41,37 +48,18 @@
     <build>
         <plugins>
 
-            <!-- Using processor-module-path to locate the processors -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>set-processorpath-variable</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>build-classpath</goal>
-                        </goals>
-                        <configuration>
-                            <outputProperty>processor-module-path</outputProperty>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
+            <!-- Specifying the Classpath of the processor, using @AutoService to provide the processors names -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                    <encoding>UTF-8</encoding>
-
-                    <compilerArgs>
-                        <compilerArg>--processor-module-path</compilerArg>
-                        <!--suppress UnresolvedMavenProperty -->
-                        <compilerArg>${processor-module-path}</compilerArg>
-                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>processorutilities</artifactId>
+                            <version>${project.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
