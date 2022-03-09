@@ -40,20 +40,37 @@
     <build>
         <plugins>
 
-            <!-- Specifying the (modular) processors paths -->
+            <!-- Specifying the "processor-module-path", TODO: regular path does not work?! -->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-processorpath-variable</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <outputProperty>processor-module-path</outputProperty>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.aria</groupId>
-                            <artifactId>processorswithoutdependency</artifactId>
-                            <version>1.0-SNAPSHOT</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>--processor-module-path</compilerArg>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <compilerArg>${processor-module-path}</compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
+
 
         </plugins>
     </build>
