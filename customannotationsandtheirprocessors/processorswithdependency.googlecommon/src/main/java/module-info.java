@@ -1,5 +1,8 @@
 import processors.SimpleGCommonProcessor;
 
+/**
+ * Javadoc for {@code processorswithdependency.googlecommon} module.
+ */
 module processorswithdependency.googlecommon {
   requires auto.common;
   requires static com.google.common;

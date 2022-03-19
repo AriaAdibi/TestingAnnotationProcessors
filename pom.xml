@@ -8,17 +8,32 @@
     <groupId>org.aria</groupId>
     <artifactId>annotationprocessortest</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
+    <description>
+        Testing methods of annotation processing, and
+        providing a common utilities for creating annotation processors similar to that of Google's Auto.Common.
+    </description>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <model.version>4.0.0</model.version>
+        <revision>1.0.0-SNAPSHOT</revision> <!-- version of the project -->
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven-compiler-plugin.version>3.10.0</maven-compiler-plugin.version>
-        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+        <lombok.version>1.18.22</lombok.version>
+        <guava.version>31.0.1-jre</guava.version>
+        <!-- Testing -->
+<!--        <surefire.version>3.0.0-M5</surefire.version>-->
+        <jUnit.version>4.13.2</jUnit.version>
+        <googleTruth.version>1.1.3</googleTruth.version>
+        <googleCompileTesing.version>0.19</googleCompileTesing.version>
+        <!-- Documenting -->
+        <sitePlugin.version>3.11.0</sitePlugin.version>
+        <projectInfoReportPlugin.version>3.2.2</projectInfoReportPlugin.version>
+        <javadoc.version>3.3.2</javadoc.version>
+
     </properties>
 
     <modules>
@@ -31,17 +46,53 @@
         <dependencies>
 
             <dependency>
-                <groupId>org.aria</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>annotations</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <scope>compile</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>31.0.1-jre</version>
+                <version>${guava.version}</version>
                 <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- Testing TODO clean up and move to appropriate child if applicable-->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${jUnit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.truth</groupId>
+                <artifactId>truth</artifactId>
+                <version>${googleTruth.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.testing.compile</groupId>
+                <artifactId>compile-testing</artifactId>
+                <version>${googleCompileTesing.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava-testlib</artifactId>
+                <version>${guava.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>
@@ -49,6 +100,7 @@
 
     <!-- Build Plugins and Build Plugins Management -->
     <build>
+
         <pluginManagement>
             <plugins>
 
@@ -60,10 +112,18 @@
                         <source>11</source>
                         <target>11</target>
                         <encoding>UTF-8</encoding>
+                        <showWarnings>true</showWarnings>
                     </configuration>
                 </plugin>
 
+<!--                <plugin>-->
+<!--                    <groupId>org.apache.maven.plugins</groupId>-->
+<!--                    <artifactId>maven-surefire-plugin</artifactId>-->
+<!--                    <version>${surefire.version}</version>-->
+<!--                </plugin>-->
             </plugins>
+
+
         </pluginManagement>
 
         <plugins>
@@ -71,7 +131,7 @@
 
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${sitePlugin.version}</version>
                 <configuration>
                     <relativizeDecorationLinks>false</relativizeDecorationLinks>
                 </configuration>
@@ -88,13 +148,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>${projectInfoReportPlugin.version}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>${javadoc.version}</version>
+                <!--
+                https://maven.apache.org/plugins/maven-javadoc-plugin/examples/aggregate-nofork.html
+                Without this it forks. //TODO figure out why.
+                Also there is one for non-aggregated. //TODO understand the difference
+                -->
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate-no-fork</report>
+                            <report>test-aggregate-no-fork</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
 
         </plugins>

@@ -9,6 +9,9 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * Javadoc for {@code SimpleBareProcessor} class.
+ */
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 //@AutoService(Processor.class)

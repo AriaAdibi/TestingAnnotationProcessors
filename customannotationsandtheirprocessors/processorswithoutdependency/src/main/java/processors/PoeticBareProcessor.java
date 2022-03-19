@@ -13,6 +13,9 @@ import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.time.LocalDate;
 
+/**
+ * Javadoc for {@code PoeticBareProcessor} class.
+ */
 @SupportedAnnotationTypes("customannotations.Epilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 //@AutoService(Processor.class)
