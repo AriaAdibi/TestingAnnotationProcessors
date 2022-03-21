@@ -3,11 +3,8 @@ package baseprocessors;
 import javax.lang.model.element.*;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleElementVisitor9;
-
 import java.lang.annotation.Annotation;
 import java.util.Optional;
-
-import static javax.lang.model.element.ElementKind.PACKAGE;
 
 /**
  * Static utility methods pertaining to {@link Element} instances.
@@ -15,51 +12,6 @@ import static javax.lang.model.element.ElementKind.PACKAGE;
 public class MoreElements {
 
   private MoreElements(){}
-
-  /* TODO */
-  /**
-   * Rreturns the nearest enclosing {@link TypeElement} to the current element.
-   *
-   * @param element an element
-   *
-   * @return the nearest enclosing {@link TypeElement} to the current element.
-   *
-   * @throws IllegalArgumentException if the provided {@link Element} is a {@link PackageElement} or is
-   * otherwise not enclosed by a type.
-   */
-  public static TypeElement getEnclosingType(Element element) { //TODO What if we encounter an empty (default) package?
-    return element.accept(
-        new SimpleElementVisitor9<TypeElement, Void>() {
-          @Override
-          protected TypeElement defaultAction(Element e, Void p) {
-            return e.getEnclosingElement().accept(this, p);
-          }
-
-          @Override
-          public TypeElement visitType(TypeElement e, Void p) {
-            return e;
-          }
-
-          @Override
-          public TypeElement visitPackage(PackageElement e, Void p) {
-            throw new IllegalArgumentException();
-          }
-        },
-        null);
-  }
-
-  /**
-   * An alternate implementation of {@link Elements#getPackageOf} that does not require an
-   * {@link Elements} instance.
-   *
-   * @throws NullPointerException if {@code element} is {@code null}
-   */
-  public static PackageElement getPackage(Element element) {
-    while (element.getKind() != ElementKind.PACKAGE) {
-      element = element.getEnclosingElement();
-    }
-    return MoreElements.asPackage(element);
-  }
 
   /* ********************************************************************* */
   /* Type/Presence Check ************************************************* */
@@ -108,6 +60,55 @@ public class MoreElements {
    */
   public static boolean isAnnotationPresent(Element element, String annotationName) {
     return getAnnotationMirror(element, annotationName).isPresent();
+  }
+
+  /* ********************************************************************* */
+  /* Getters ************************************************************* */
+  /* ********************************************************************* */
+
+  /**
+   * An alternate implementation of {@link Elements#getPackageOf} that does not require an
+   * {@link Elements} instance.
+   *
+   * @throws NullPointerException if {@code element} is {@code null}
+   */
+  public static PackageElement getPackage(Element element) {
+    while (element.getKind() != ElementKind.PACKAGE) {
+      element = element.getEnclosingElement();
+    }
+    return MoreElements.asPackage(element);
+  }
+
+  /**
+   * Rreturns the nearest enclosing {@link TypeElement} to the current element.
+   *
+   * @param element an element
+   *
+   * @return the nearest enclosing {@link TypeElement} to the current element.
+   *
+   * @throws IllegalArgumentException if the provided {@link Element} is a {@link PackageElement} or is
+   * otherwise not enclosed by a type.
+   */
+  public static TypeElement getEnclosingType(Element element) {
+    return element.accept(
+        new SimpleElementVisitor9<TypeElement, Void>() {
+          @Override
+          protected TypeElement defaultAction(Element e, Void p) {
+            return e.getEnclosingElement().accept(this, p);
+          }
+
+          @Override
+          public TypeElement visitType(TypeElement e, Void p) {
+            return e;
+          }
+
+          @Override
+          public TypeElement visitPackage(PackageElement e, Void p) {
+            throw new IllegalArgumentException();
+          }
+        },
+        null
+    );
   }
 
   /**

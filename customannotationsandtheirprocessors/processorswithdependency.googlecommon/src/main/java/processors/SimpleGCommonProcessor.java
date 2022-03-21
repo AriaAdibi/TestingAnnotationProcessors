@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 /**
  * Javadoc for {@code SimpleGCommonProcessor} class.
  */
-@SupportedAnnotationTypes("customannotations.Epilogue")
+@SupportedAnnotationTypes("customannotations.CreateEpilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 //@AutoService(Processor.class)
 public class SimpleGCommonProcessor extends BasicAnnotationProcessor {
@@ -23,6 +23,11 @@ public class SimpleGCommonProcessor extends BasicAnnotationProcessor {
   protected Iterable<? extends Step> steps() {
     return ImmutableSet.of(
         new Step() {
+          @Override
+          public ImmutableSet<String> annotations() {
+            return ImmutableSet.of("customannotations.CreateEpilogue");
+          }
+
           @Override
           public ImmutableSet<? extends Element> process(ImmutableSetMultimap<String, Element> elementsByAnnotation) {
             JavaFileObject jFile = null;
@@ -36,11 +41,11 @@ public class SimpleGCommonProcessor extends BasicAnnotationProcessor {
 
               out.print(
                   "package epilogueprinter;\n\n" +
-                  "public class GoogleCommonTheEnd {\n" +
-                  "   public static void main(String[] args) {\n" +
-                  "       System.out.println( \"---- The End ----\" );\n" +
-                  "   }\n" +
-                  "}"
+                      "public class GoogleCommonTheEnd {\n" +
+                      "   public static void main(String[] args) {\n" +
+                      "       System.out.println( \"---- The End ----\" );\n" +
+                      "   }\n" +
+                      "}"
               );
 
             } catch (IOException e) {
@@ -48,10 +53,7 @@ public class SimpleGCommonProcessor extends BasicAnnotationProcessor {
             }
             return ImmutableSet.of();
           }
-
-          @Override
-          public ImmutableSet<String> annotations() {return ImmutableSet.of("customannotations.Epilogue");
-          }
-        });
+        }
+        );
   }
 }

@@ -159,15 +159,16 @@
                 https://maven.apache.org/plugins/maven-javadoc-plugin/examples/aggregate-nofork.html
                 Without this it forks. //TODO figure out why.
                 Also there is one for non-aggregated. //TODO understand the difference
+                Note that this goal does require generation of test sources before site generation, e.g. by invoking mvn clean deploy site
                 -->
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>aggregate-no-fork</report>
-                            <report>test-aggregate-no-fork</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
+<!--                <reportSets>-->
+<!--                    <reportSet>-->
+<!--                        <reports>-->
+<!--                            <report>aggregate-no-fork</report>-->
+<!--                            <report>test-aggregate-no-fork</report>-->
+<!--                        </reports>-->
+<!--                    </reportSet>-->
+<!--                </reportSets>-->
             </plugin>
 
         </plugins>

@@ -1,18 +1,3 @@
-/*
- * Copyright 2014 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package baseprocessors;
 
 import com.google.common.truth.Expect;
@@ -43,6 +28,7 @@ public class MoreElementsTest {
 
   private Elements elements;
   private PackageElement javaLangPackageElement;
+  @SuppressWarnings({"unused", "FieldCanBeLocal"})
   private TypeElement objectElement;
   private TypeElement stringElement;
 
@@ -62,6 +48,12 @@ public class MoreElementsTest {
     }
   }
 
+//  @Test
+//  public void getEnclosingType() {
+//    //TODO
+//  }
+
+  //TODO change the name of mehtods in accordance to changes made in MoreElements; e.g. asType --> asTypeElement
   @Test
   public void asPackage() {
     assertThat(MoreElements.asPackage(javaLangPackageElement)).isEqualTo(javaLangPackageElement);
@@ -243,11 +235,12 @@ public class MoreElementsTest {
         MoreElements.getAnnotationMirror(element, suppressWarningsElement));
   }
 
+  @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "Guava"})
   private void getAnnotationMirrorAsserts(
       Optional<AnnotationMirror> jDocumented,
       Optional<AnnotationMirror> jInnerAnnotation,
       Optional<AnnotationMirror> jSuppressWarnings) {
-    //TODO just quick fix
+    // TODO for now just quick fix
     com.google.common.base.Optional<AnnotationMirror> documented = com.google.common.base.Optional.fromJavaUtil(jDocumented);
     com.google.common.base.Optional<AnnotationMirror> innerAnnotation = com.google.common.base.Optional.fromJavaUtil(jInnerAnnotation);
     com.google.common.base.Optional<AnnotationMirror> suppressWarnings = com.google.common.base.Optional.fromJavaUtil(jSuppressWarnings);

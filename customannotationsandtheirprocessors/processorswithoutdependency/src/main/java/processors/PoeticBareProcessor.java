@@ -1,9 +1,11 @@
 package processors;
 
+import com.google.auto.service.AutoService;
 import com.squareup.javapoet.*;
-import customannotations.Epilogue;
+import customannotations.CreateEpilogue;
 
 import javax.annotation.processing.Generated;
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
@@ -16,16 +18,12 @@ import java.time.LocalDate;
 /**
  * Javadoc for {@code PoeticBareProcessor} class.
  */
-@SupportedAnnotationTypes("customannotations.Epilogue")
+@SupportedAnnotationTypes("customannotations.CreateEpilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
-//@AutoService(Processor.class)
+@AutoService(Processor.class)
 public class PoeticBareProcessor extends BareProcessor{
 
   @Override boolean processEach(TypeElement annotation, Element element) {
-    System.err.println("****Entering PoeticBareProcessor .... ****");
-    int nLines = element.getAnnotation(Epilogue.class).nLines();
-    if( nLines > 0 )
-      return false;
 
     MethodSpec mainMethod = MethodSpec.methodBuilder("main")
         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)

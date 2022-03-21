@@ -54,6 +54,17 @@
             <artifactId>guava-testlib</artifactId>
         </dependency>
 
+        <!-- Processor -->
+        <dependency>
+            <groupId>org.aria</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

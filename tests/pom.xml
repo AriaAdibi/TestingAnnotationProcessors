@@ -35,11 +35,11 @@
 <!--        </dependency>-->
 
         <!-- Use Processors that uses the Custom Annotation Utilities -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>processorutilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>${project.groupId}</groupId>-->
+<!--            <artifactId>processorutilities</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 
