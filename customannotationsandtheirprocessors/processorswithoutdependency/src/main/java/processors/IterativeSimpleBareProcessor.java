@@ -1,7 +1,9 @@
 package processors;
 
+import com.google.auto.service.AutoService;
 import customannotations.Epilogue;
 
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
