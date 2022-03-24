@@ -42,6 +42,7 @@ import static javax.lang.model.type.TypeKind.VOID;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings("UnstableApiUsage") //TODO
 @RunWith(JUnit4.class)
 public class MoreTypesTest {
   @Rule public final CompilationRule compilationRule = new CompilationRule();
@@ -172,7 +173,7 @@ public class MoreTypesTest {
     public static void b(String s) {}
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "RedundantThrows"})
   private static final class ExecutableElementsGroupC {
     ExecutableElementsGroupC() throws Exception {}
 
@@ -201,6 +202,7 @@ public class MoreTypesTest {
 
   @SuppressWarnings("unused")
   private static final class Container<T> {
+    @SuppressWarnings("InnerClassMayBeStatic")
     private final class Contained {}
   }
 
@@ -398,6 +400,7 @@ public class MoreTypesTest {
     private int[] arrayOfInt;
     private Thread.State threadStateEnum;
     private List<?> listOfWildcard;
+    @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
     private List<? extends Object> listOfWildcardExtendsObject;
     private Map<?, ?> mapWildcardToWildcard;
   }

@@ -74,10 +74,11 @@ import static com.google.common.collect.Multimaps.filterKeys;
 public abstract class BaseAnnotationProcessor extends AbstractProcessor {
 
   /* ProcessingSteps, to be implemented by the user */
+
   /**
    * The unit of processing logic that runs under the guarantee that all elements are complete and
-   * well-formed. A {@code ProcessingStep} may reject elements that are not ready for processing but may be at a later
-   * steps and rounds.
+   * well-formed. A {@code ProcessingStep} may reject elements that are not ready for processing but
+   * might be at a later steps and rounds.
    */
   public interface ProcessingStep {
 
@@ -94,8 +95,9 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
      * The implementation of processing logic for the {@code ProcessingStep}. It is guaranteed that the keys in {@code
      * elementsByAnnotation} will be a subset of the set returned by {@link #annotations()}.
      *
-     * @param elementsByAnnotation the elements to be processed mapped to their invoking annotation. It is
-     * guaranteed that the keys in {@code elementsByAnnotation} will be a subset of the set returned by {@link #annotations()}.
+     * @param elementsByAnnotation the elements to be processed mapped to their invoking annotation.
+     * It is guaranteed that the keys in {@code elementsByAnnotation} will be a subset of the set returned
+     * by {@link #annotations()}. Additionally, the well-formness of the elements are also guaranteed.
      *
      * @return the elements (a subset of the values of {@code elementsByAnnotation}) that this {@code ProcessingStep}
      * is unable to process at the current processing step. These elements are deferred and will be considered again in
@@ -105,8 +107,8 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
   }
 
   /**
-   * {@linkplain ProcessingStep}s provided by the user for this processor. {@link #processingEnv} is
-   * guaranteed to be set when this method is invoked.
+   * Returns the {@linkplain ProcessingStep}s as specified by the user for this processor.
+   * {@link #processingEnv} is guaranteed to be set when this method is invoked.
    *
    * @return {@linkplain ProcessingStep}s provided by the user for this processor.
    */
@@ -146,9 +148,9 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
   private final Set<TypeOrPackageElementName> illInformedTypeOrPackageElementNames = new LinkedHashSet<>();
   private final SetMultimap<ProcessingStep, TypeOrPackageElementName> typeOrPackageElementNamesDeferredByProcessingSteps = LinkedHashMultimap.create();
 
-  private Elements eltUtils;
-  private Types typeUtils;
-  private Messager messager;
+  protected Elements eltUtils;
+  protected Types typeUtils;
+  protected Messager messager;
   private ImmutableList<? extends ProcessingStep> processingSteps;
 
   @Override
@@ -272,7 +274,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
 
     Set<TypeOrPackageElementName> validTypeOrPackageElementNames = new LinkedHashSet<>(); //TODO rename to wellinformed?
 
-//     Look at the elements we've found and the new elements from this round and validate them.
+    // Look at the elements we've found and the new elements from this round and validate them.
     for (TypeElement annotationType : getSupportedAnnotationTypeElements()) { //TODO Another used of typeElement instead
       Set<? extends Element> roundElements = roundEnv.getElementsAnnotatedWith(annotationType); //TODO maybe pass it from process and use it here and above in the findAnnotated...
       ImmutableSet<Element> prevRoundElements = deferredElementsByAnnotation.get(annotationType); //TODO better name potential deffered or something ...

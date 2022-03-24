@@ -9,4 +9,9 @@ module processorutilities {
   requires static java.compiler;
   requires static com.google.common;
   requires static lombok;
+
+  requires static annotations;
+  requires static com.squareup.javapoet;
+
+//  provides javax.annotation.processing.Processor with processors.PoeticIterativeEpilogueProcessor;
 }

@@ -54,6 +54,17 @@
             <artifactId>guava-testlib</artifactId>
         </dependency>
 
+        <!-- Processor -->
+        <dependency>
+            <groupId>org.aria</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -69,7 +80,6 @@
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
                         </path>
-
                         <!-- Google AutoService Method for Configuring the Processor(s) -->
                         <path>
                             <groupId>com.google.auto.service</groupId>

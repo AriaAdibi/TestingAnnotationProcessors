@@ -2,7 +2,9 @@ package baseprocessors;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
-import javax.lang.model.util.*;
+import javax.lang.model.util.AbstractElementVisitor9;
+import javax.lang.model.util.SimpleAnnotationValueVisitor9;
+import javax.lang.model.util.SimpleTypeVisitor9;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
@@ -37,14 +39,15 @@ public final class SuperficialValidation {
     return element.accept(ELEMENT_VALIDATING_VISITOR, null);
   }
 
-  private static boolean isValidBaseElement(Element e) {
-    return validateType(e.asType())
-        && validateAnnotations(e.getAnnotationMirrors())
-        && validateElements(e.getEnclosedElements());
-  }
-
   private static final ElementVisitor<Boolean, Void> ELEMENT_VALIDATING_VISITOR =
       new AbstractElementVisitor9<>() {
+
+        private boolean isValidBaseElement(Element e) {
+          return validateType(e.asType())
+              && validateAnnotations(e.getAnnotationMirrors())
+              && validateElements(e.getEnclosedElements());
+        }
+
         @Override public Boolean visitModule(ModuleElement t, Void unused) {
           return visitUnknown(t, unused); //Ignore Modules
         }
@@ -121,7 +124,7 @@ public final class SuperficialValidation {
       new SimpleTypeVisitor9<>() {
         @Override
         protected Boolean defaultAction(TypeMirror t, Void p) {
-          return true; //TODO Most types reside here. Like primitives (Since every unoverriden method like visitPrimitive() calls the default method. ), ... Shouldn't be some sort of check here? Almost nothing happens in this visitor. Everything eventually return true.
+          return true;
         }
 
         @Override
@@ -202,7 +205,7 @@ public final class SuperficialValidation {
         @Override
         public Boolean visitUnknown(AnnotationValue av, TypeMirror expectedType) {
           // just take the default action for the unknown
-          return defaultAction(av, expectedType); //TODO Why?
+          return defaultAction(av, expectedType);
         }
 
         @Override

@@ -24,21 +24,19 @@ public final class MoreTypes {
 
   private MoreTypes(){}
 
-  //////////////////////////////////////////////////////////////////////////////////
-
   /**
    * Returns an {@link Equivalence} that can be used to compare types. The standard way to compare
    * types is {@link javax.lang.model.util.Types#isSameType Types.isSameType}, but this alternative
    * may be preferred in a number of cases:
    *
    * <ul>
-   * <li>If you don't have an instance of {@code Types}.
-   * <li>If you want a reliable {@code hashCode()} for the types, for example to construct a set
-   *     of types using {@link java.util.HashSet} with {@link Equivalence#wrap(Object)}.
-   * <li>If you want distinct type variables to be considered equal if they have the same names
-   *     and bounds.
-   * <li>If you want wildcard types to compare equal if they have the same bounds. {@code
-   *     Types.isSameType} never considers wildcards equal, even when comparing a type to itself.
+   *    <li>If you don't have an instance of {@code Types}.
+   *    <li>If you want a reliable {@code hashCode()} for the types, for example to construct a set
+   *        of types using {@link java.util.HashSet} with {@link Equivalence#wrap(Object)}.
+   *    <li>If you want distinct type variables to be considered equal if they have the same names
+   *        and bounds.
+   *    <li>If you want wildcard types to compare equal if they have the same bounds. {@code
+   *        Types.isSameType} never considers wildcards equal, even when comparing a type to itself.
    * </ul>
    */
   public static Equivalence<TypeMirror> equivalence() {
@@ -49,13 +47,13 @@ public final class MoreTypes {
     private static final TypeEquivalence INSTANCE = new TypeEquivalence();
 
     @Override
-    protected boolean doEquivalent(TypeMirror a, TypeMirror b) {
-      return MoreTypes.equal(a, b, ImmutableSet.<ComparedElements>of());
+    protected boolean doEquivalent(@NonNull TypeMirror a, @NonNull TypeMirror b) {
+      return MoreTypes.equal(a, b, ImmutableSet.of());
     }
 
     @Override
-    protected int doHash(TypeMirror t) {
-      return MoreTypes.hash(t, ImmutableSet.<Element>of());
+    protected int doHash(@SuppressWarnings("NullableProblems") TypeMirror t) {
+      return MoreTypes.hash(t, ImmutableSet.of());
     }
 
     @Override
@@ -87,7 +85,7 @@ public final class MoreTypes {
   private static final class HashVisitor extends SimpleTypeVisitor9<Integer, Set<Element>> {
     private static final HashVisitor INSTANCE = new HashVisitor();
 
-    int hashKind(int seed, TypeMirror t) {
+    int hashKind(@SuppressWarnings("SameParameterValue") int seed, TypeMirror t) {
       return seed * HASH_MULTIPLIER + t.getKind().hashCode();
     }
 
@@ -110,7 +108,7 @@ public final class MoreTypes {
       if (visiting.contains(element))
         return 0;
 
-      Set<Element> newVisiting = new HashSet<Element>(visiting);
+      Set<Element> newVisiting = new HashSet<>(visiting);
       newVisiting.add(element);
       int result = hashKind(HASH_SEED, t);
       result *= HASH_MULTIPLIER;
@@ -197,7 +195,7 @@ public final class MoreTypes {
     // stuck in infinite recursion when Eclipse decrees that the upper bound of the second K in
     // <K extends Comparable<K>> is a distinct but equal K.
     // The javac implementation of ExecutableType, at least in some versions, does not take thrown
-    // exceptions into account in its equals implementation, so avoid this optimization for
+    // exceptions into account in its equals' implementation, so avoid this optimization for
     // ExecutableType.
 //    @SuppressWarnings("TypesEquals")
     boolean equal = a.equals(b);
@@ -223,7 +221,7 @@ public final class MoreTypes {
   // compare the corresponding Elements, since equality is well-defined there, but that's not enough
   // either, because the Element for Set<Object> is the same as the one for Set<String>. So we
   // approximate by comparing the Elements and, if there are any type arguments, requiring them to
-  // be identical. This may not be foolproof either but it is sufficient for all the cases we've
+  // be identical. This may not be foolproof either, but it is sufficient for all the cases we've
   // encountered so far.
   private static final class EqualVisitorParam {
     TypeMirror type;
@@ -249,9 +247,9 @@ public final class MoreTypes {
 
     @Override
     public boolean equals(Object o) {
-      if ( (o instanceof ComparedElements) == false ) return false;
+      if ( !(o instanceof ComparedElements) ) return false;
       ComparedElements that = (ComparedElements) o;
-      if( that.canEqual( (Object)this ) == false ) return false;
+      if( !that.canEqual(this) ) return false;
 
       int nArguments = aArguments.size();
       // The arguments must be the same size, but we check anyway.
@@ -259,7 +257,7 @@ public final class MoreTypes {
         return false;
 
       for (int i = 0; i < nArguments; i++)
-        if (aArguments.get(i) != bArguments.get(i)) //TODO should'nt this be Types.isSameType()?, and why no "that"
+        if (aArguments.get(i) != bArguments.get(i)) //TODO shouldn't this be Types.isSameType()?, and why no "that"
           return false;
 
       //TODO NO CHECK FOR that??
@@ -303,9 +301,9 @@ public final class MoreTypes {
         List<? extends TypeMirror> bArguments) {
       ComparedElements comparedElements =
           new ComparedElements(
-              a, ImmutableList.<TypeMirror>copyOf(aArguments),
-              b, ImmutableList.<TypeMirror>copyOf(bArguments));
-      Set<ComparedElements> newVisiting = new HashSet<ComparedElements>(visiting);
+              a, ImmutableList.copyOf(aArguments),
+              b, ImmutableList.copyOf(bArguments));
+      Set<ComparedElements> newVisiting = new HashSet<>(visiting);
       newVisiting.add(comparedElements);
       return newVisiting;
     }
@@ -334,7 +332,7 @@ public final class MoreTypes {
       Element bElement = b.asElement();
       Set<ComparedElements> newVisiting = visitingSetPlus(p.visiting, aElement, a.getTypeArguments(), bElement, b.getTypeArguments());
       if (newVisiting.equals(p.visiting)) {
-        // We're already visiting this pair of elements. //TODO grammar chagne
+        // We're already visiting this pair of elements. //TODO grammar change
         // This can happen for example with Enum in Enum<E extends Enum<E>>. Return a
         // provisional true value since if the Elements are not in fact equal the original
         // visitor of Enum will discover that. We have to check both Elements being compared
@@ -490,6 +488,7 @@ public final class MoreTypes {
   }
 
   /* Used only in testing */
+
   /**
    * Returns true if the raw type underlying the given {@link TypeMirror} represents a type that can
    * be referenced by a {@link Class}. If this returns true, then {@link #isTypeOf} is guaranteed to
@@ -630,7 +629,7 @@ public final class MoreTypes {
   }
 
   /**
-   * Returns a {@link NoType} if the {@link TypeMirror} represents an non-type such as void, or
+   * Returns a {@link NoType} if the {@link TypeMirror} represents a non-type such as void, or
    * package, etc. or throws an {@link IllegalArgumentException}.
    */
   @SuppressWarnings("unused")
