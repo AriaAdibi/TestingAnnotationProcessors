@@ -46,6 +46,7 @@ public class MoreElementsTest {
     for (Element childElement : stringElement.getEnclosedElements()) {
       assertThat(MoreElements.getPackage(childElement)).isEqualTo(javaLangPackageElement);
     }
+    //TODO add test for unnamed package (I already tested it works)
   }
 
 //  @Test
@@ -109,12 +110,12 @@ public class MoreElementsTest {
   }
 
   @Test
-  public void asType() {
+  public void asTypeElement() {
     assertThat(MoreElements.asTypeElement(stringElement)).isEqualTo(stringElement);
   }
 
   @Test
-  public void asType_illegalArgument() {
+  public void asTypeElement_illegalArgument() {
     assertFalse(MoreElements.isTypeElement(javaLangPackageElement));
     try {
       MoreElements.asTypeElement(javaLangPackageElement);
