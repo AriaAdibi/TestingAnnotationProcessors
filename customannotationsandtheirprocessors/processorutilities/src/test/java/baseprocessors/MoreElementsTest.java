@@ -69,15 +69,15 @@ public class MoreElementsTest {
     }
   }
 
-  @Test
-  public void asTypeElement() {
-    Element typeElement = elements.getTypeElement(String.class.getCanonicalName());
-    assertTrue(MoreElements.isTypeElement(typeElement));
-    assertThat(MoreElements.asTypeElement(typeElement)).isEqualTo(typeElement);
-  }
+//  @Test
+//  public void asTypeElement() { //TODO unnecessary, replicated with the other one + also add fundtion for isType
+//    Element typeElement = elements.getTypeElement(String.class.getCanonicalName());
+//    assertTrue(MoreElements.isTypeElement(typeElement));
+//    assertThat(MoreElements.asTypeElement(typeElement)).isEqualTo(typeElement);
+//  }
 
   @Test
-  public void asTypeElement_notATypeElement() {
+  public void asTypeElement_notATypeElement() { //TODO Unnecessary, at lease modify
     TypeElement typeElement = elements.getTypeElement(String.class.getCanonicalName());
     for (ExecutableElement e : ElementFilter.methodsIn(typeElement.getEnclosedElements())) {
       assertFalse(MoreElements.isTypeElement(e));
