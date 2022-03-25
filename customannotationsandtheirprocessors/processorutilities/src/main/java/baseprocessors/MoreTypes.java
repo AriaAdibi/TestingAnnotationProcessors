@@ -39,7 +39,7 @@ public final class MoreTypes {
    *        Types.isSameType} never considers wildcards equal, even when comparing a type to itself.
    * </ul>
    */
-  public static Equivalence<TypeMirror> equivalence() {
+  public static Equivalence<TypeMirror> getTypeEquivalence() {
     return TypeEquivalence.INSTANCE;
   }
 
@@ -58,7 +58,7 @@ public final class MoreTypes {
 
     @Override
     public String toString() {
-      return "MoreTypes.equivalence()";
+      return "MoreTypes.TypeEquivalence";
     }
   }
 

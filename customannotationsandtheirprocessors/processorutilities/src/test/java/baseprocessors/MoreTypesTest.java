@@ -80,7 +80,7 @@ public class MoreTypesTest {
     TypeMirror containedInObject = types.asMemberOf(containerOfObject, contained);
     TypeMirror containedInString = types.asMemberOf(containerOfString, contained);
     EquivalenceTester<TypeMirror> tester =
-        EquivalenceTester.<TypeMirror>of(MoreTypes.equivalence())
+        EquivalenceTester.<TypeMirror>of(MoreTypes.getTypeEquivalence())
             .addEquivalenceGroup(types.getNullType())
             .addEquivalenceGroup(types.getNoType(NONE))
             .addEquivalenceGroup(types.getNoType(VOID))
