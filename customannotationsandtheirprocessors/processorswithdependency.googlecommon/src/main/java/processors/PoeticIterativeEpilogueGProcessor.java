@@ -57,7 +57,7 @@ public class PoeticIterativeEpilogueGProcessor extends BasicAnnotationProcessor 
       try {
         jFile.writeTo( processingEnv.getFiler() );
       } catch (IOException e) {
-        System.err.println( "Oh, why thee shalt not write?!" + e.getMessage() );
+        System.err.println( "Oh, wherefore thee shalt not writeth?!" + e.getMessage() );
         e.printStackTrace();
       }
     }
@@ -79,7 +79,7 @@ public class PoeticIterativeEpilogueGProcessor extends BasicAnnotationProcessor 
 
             for (Map.Entry<String, Element> elementByAnnotation : elementsByAnnotation.entries()) {
               if( !elementByAnnotation.getKey().equals("customannotations.CreateEpilogue") )
-                throw new IllegalArgumentException("Unexpected annotation is sent to be processed: " + elementByAnnotation.getKey());
+                throw new IllegalArgumentException("Unexpect'd annotation is sent to beest process'd: " + elementByAnnotation.getKey());
               Element element = elementByAnnotation.getValue();
 
               /* Get Annotation values */
@@ -126,7 +126,7 @@ public class PoeticIterativeEpilogueGProcessor extends BasicAnnotationProcessor 
                 try {
                   Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                  System.err.println("(Draft I) No matter how beautiful I make my letter I will never be yours. I cannot write this letter. I wish the best my love.");
+                  System.err.println("(Draft I) Nay matt'r how quite quaint i maketh mine own lett'r i shall nev'r beest yours. I cannot writeth this lett'r. I wisheth the most wondrous mine loveth.");
                   e.printStackTrace();
                 }
 
@@ -137,7 +137,7 @@ public class PoeticIterativeEpilogueGProcessor extends BasicAnnotationProcessor 
                 try {
                   Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                  System.err.println("(Draft II) No matter how beautiful I make my letter I will never be yours. I cannot write this letter. I wish the best my love.");
+                  System.err.println("(Draft II) Nay matt'r how quite quaint i maketh mine own lett'r i shall nev'r beest yours. I cannot writeth this lett'r. I wisheth the most wondrous mine loveth.");
                   e.printStackTrace();
                 }
 
@@ -148,7 +148,7 @@ public class PoeticIterativeEpilogueGProcessor extends BasicAnnotationProcessor 
                 try {
                   Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                  System.err.println("(Draft III) No matter how beautiful I make my letter I will never be yours. I cannot write this letter. I wish the best my love.");
+                  System.err.println("(Draft III) Nay matt'r how quite quaint i maketh mine own lett'r i shall nev'r beest yours. I cannot writeth this lett'r. I wisheth the most wondrous mine loveth.");
                   e.printStackTrace();
                 }
 
