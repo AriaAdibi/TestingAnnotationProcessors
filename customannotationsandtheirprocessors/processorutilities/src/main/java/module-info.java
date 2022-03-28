@@ -5,6 +5,7 @@
  * @author Aria Adibi
  */
 module processorutilities {
+  exports baseprocessors;
   requires static com.google.auto.service;
   requires static java.compiler;
   requires static com.google.common;

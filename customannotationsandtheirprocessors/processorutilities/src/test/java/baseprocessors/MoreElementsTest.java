@@ -46,7 +46,7 @@ public class MoreElementsTest {
     for (Element childElement : stringElement.getEnclosedElements()) {
       assertThat(MoreElements.getPackage(childElement)).isEqualTo(javaLangPackageElement);
     }
-    //TODO add test for unnamed package (I already tested it works)
+    //TODO add test for unnamed package (I already tested it, it works)
   }
 
 //  @Test

@@ -38,6 +38,8 @@ public final class MoreTypes {
    *    <li>If you want wildcard types to compare equal if they have the same bounds. {@code
    *        Types.isSameType} never considers wildcards equal, even when comparing a type to itself.
    * </ul>
+   *
+   * @return an {@link Equivalence} that can be used to compare types.
    */
   public static Equivalence<TypeMirror> getTypeEquivalence() {
     return TypeEquivalence.INSTANCE;
@@ -421,9 +423,14 @@ public final class MoreTypes {
   /* ********************************************************************* */
 
   /**
-   * Returns true if the raw type underlying the given {@link TypeMirror} represents the same raw
+   * Returns {@code true} iff the raw type underlying the given {@link TypeMirror} represents the same raw
    * type as the given {@link Class} and throws an {@link IllegalArgumentException} if the {@link
    * TypeMirror} does not represent a type that can be referenced by a {@link Class}
+   *
+   * @param type the investigated {@linkplain TypeMirror} whose type is being compared with
+   * @param clazz the {@linkplain Class} whose type is being compared to
+   * @return {@code true} iff the underlying raw type of {@code type} and {@code clazz} are the same.
+   * @throws IllegalArgumentException if the {@linkplain TypeMirror} does not represent a type that can be referenced by a {@linkplain  Class}
    */
   public static boolean isTypeOf(@NonNull final Class<?> clazz, TypeMirror type) {
     return type.accept(new IsTypeOf(clazz), null);
@@ -493,9 +500,13 @@ public final class MoreTypes {
   /* Used only in testing */
 
   /**
-   * Returns true if the raw type underlying the given {@link TypeMirror} represents a type that can
+   * Returns {@code true} iff the raw type underlying the given {@link TypeMirror} represents a type that can
    * be referenced by a {@link Class}. If this returns true, then {@link #isTypeOf} is guaranteed to
    * not throw.
+   *
+   * @param type the investigated {@linkplain TypeMirror}
+   * @return {@code true} iff the raw type underlying the given {@linkplain TypeMirror} represents a type that can
+   * be referenced by a {@linkplain Class}
    */
   public static boolean isClassType(TypeMirror type) {
     return type.accept(IsClassTypeVisitor.INSTANCE, null);
@@ -534,6 +545,9 @@ public final class MoreTypes {
   /**
    * Returns the set of {@linkplain TypeElement types} that are referenced by the given {@link
    * TypeMirror}.
+   *
+   * @param type the investigated {@linkplain TypeMirror}
+   * @return the set of {@linkplain TypeElement types} that are referenced by the given {@linkplain TypeMirror}
    */
   public static ImmutableSet<TypeElement> referencedTypeElements(@NonNull TypeMirror type) {
     ImmutableSet.Builder<TypeElement> elements = ImmutableSet.builder();
@@ -590,6 +604,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link PrimitiveType} if the {@link TypeMirror} represents a primitive type or throws
    * an {@link IllegalArgumentException}.
+   *
+   * @param maybePrimitiveType the {@linkplain TypeMirror} to be casted to {@linkplain PrimitiveType}
+   * @return the casted {@linkplain PrimitiveType} iff the {@link TypeMirror} represents a primitive type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a primitive type
    */
   @SuppressWarnings("unused")
   public static PrimitiveType asPrimitiveType(TypeMirror maybePrimitiveType) {
@@ -599,6 +617,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link ArrayType} if the {@link TypeMirror} represents an array or throws an {@link
    * IllegalArgumentException}.
+   *
+   * @param maybeArrayType the {@linkplain TypeMirror} to be casted to {@linkplain ArrayType}
+   * @return the casted {@linkplain ArrayType} iff the {@link TypeMirror} represents an array
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an array
    */
   public static ArrayType asArray(TypeMirror maybeArrayType) {
     return maybeArrayType.accept(CastingToArrayTypeVisitor.INSTANCE, null);
@@ -607,6 +629,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link DeclaredType} if the {@link TypeMirror} represents a declared type such as a
    * class, interface, union/compound, or enum or throws an {@link IllegalArgumentException}.
+   *
+   * @param maybeDeclaredType the {@linkplain TypeMirror} to be casted to {@linkplain DeclaredType}
+   * @return the casted {@linkplain DeclaredType} iff the {@link TypeMirror} represents a declared type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a declared type
    */
   @SuppressWarnings("unused")
   public static DeclaredType asDeclared(TypeMirror maybeDeclaredType) {
@@ -616,6 +642,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link ExecutableType} if the {@link TypeMirror} represents an executable type such
    * as a method, constructor, or initializer or throws an {@link IllegalArgumentException}.
+   *
+   * @param maybeExecutableType the {@linkplain TypeMirror} to be casted to {@linkplain ExecutableType}
+   * @return the casted {@linkplain ExecutableType} iff the {@link TypeMirror} represents an executable type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an executable type
    */
   @SuppressWarnings("unused")
   public static ExecutableType asExecutable(TypeMirror maybeExecutableType) {
@@ -625,6 +655,10 @@ public final class MoreTypes {
   /**
    * Returns an {@link IntersectionType} if the {@link TypeMirror} represents an intersection-type
    * or throws an {@link IllegalArgumentException}.
+   *
+   * @param maybeIntersectionType the {@linkplain TypeMirror} to be casted to {@linkplain IntersectionType}
+   * @return the casted {@linkplain IntersectionType} iff the {@link TypeMirror} represents an intersection-type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an intersection-type
    */
   @SuppressWarnings("unused")
   public static IntersectionType asIntersection(TypeMirror maybeIntersectionType) {
@@ -634,6 +668,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link NoType} if the {@link TypeMirror} represents a non-type such as void, or
    * package, etc. or throws an {@link IllegalArgumentException}.
+   *
+   * @param maybeNoType the {@linkplain TypeMirror} to be casted to {@linkplain NoType}
+   * @return the casted {@linkplain NoType} iff the {@link TypeMirror} represents a non-type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a non-type
    */
   @SuppressWarnings("unused")
   public static NoType asNoType(TypeMirror maybeNoType) {
@@ -643,6 +681,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link NullType} if the {@link TypeMirror} represents the null type or throws an
    * {@link IllegalArgumentException}.
+   *
+   * @param maybeNullType the {@linkplain TypeMirror} to be casted to {@linkplain NullType}
+   * @return the casted {@linkplain NullType} iff the {@link TypeMirror} represents the null type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent the null type
    */
   @SuppressWarnings("unused")
   public static NullType asNullType(TypeMirror maybeNullType) {
@@ -656,6 +698,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link TypeVariable} if the {@link TypeMirror} represents a type variable or throws
    * an {@link IllegalArgumentException}.
+   *
+   * @param maybeTypeVariable the {@linkplain TypeMirror} to be casted to {@linkplain TypeVariable}
+   * @return the casted {@linkplain TypeVariable} iff the {@link TypeMirror} represents a type variable
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a type variable
    */
   @SuppressWarnings("unused")
   public static TypeVariable asTypeVariable(TypeMirror maybeTypeVariable) {
@@ -665,6 +711,10 @@ public final class MoreTypes {
   /**
    * Returns a {@link WildcardType} if the {@link TypeMirror} represents a wildcard type or throws
    * an {@link IllegalArgumentException}.
+   *
+   * @param maybeWildcardType the {@linkplain TypeMirror} to be casted to {@linkplain WildcardType}
+   * @return the casted {@linkplain WildcardType} iff the {@link TypeMirror} represents a wildcard type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a wildcard type
    */
   @SuppressWarnings("unused")
   public static WildcardType asWildcard(TypeMirror maybeWildcardType) {
@@ -672,8 +722,12 @@ public final class MoreTypes {
   }
 
   /**
-   * Returns a {@link ExecutableType} if the {@link TypeMirror} represents an executable type such
+   * Returns a {@link ErrorType} if the {@link TypeMirror} represents an error type such
    * as may result from missing code, or bad compiles or throws an {@link IllegalArgumentException}.
+   *
+   * @param maybeErrorType the {@linkplain TypeMirror} to be casted to {@linkplain ErrorType}
+   * @return the casted {@linkplain ErrorType} iff the {@link TypeMirror} represents an error type
+   * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an error type
    */
   @SuppressWarnings("unused")
   public static ErrorType asError(TypeMirror maybeErrorType) {
@@ -828,8 +882,10 @@ public final class MoreTypes {
   /**
    * An alternate implementation of {@link Types#asElement} that does not require a {@link Types}
    * instance with the notable difference that it will throw {@link IllegalArgumentException}
-   * instead of returning null if the {@link TypeMirror} can not be converted to an {@link Element}.
+   * instead of returning {@code null} if the {@link TypeMirror} can not be converted to an {@link Element}.
    *
+   * @param typeMirror the type to map to an element
+   * @return the element corresponding to the given type
    * @throws NullPointerException if {@code typeMirror} is {@code null}
    * @throws IllegalArgumentException if {@code typeMirror} cannot be converted to an {@link Element}
    */

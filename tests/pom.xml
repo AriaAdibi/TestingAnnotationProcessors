@@ -55,17 +55,17 @@
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>processorswithoutdependency</artifactId>
-                            <version>${project.version}</version>
+<!--                            <groupId>${project.groupId}</groupId>-->
+<!--                            <artifactId>processorswithoutdependency</artifactId>-->
+<!--                            <version>${project.version}</version>-->
 
 <!--                            <groupId>${project.groupId}</groupId>-->
 <!--                            <artifactId>processorswithdependency.googlecommon</artifactId>-->
 <!--                            <version>${project.version}</version>-->
 
-<!--                            <groupId>${project.groupId}</groupId>-->
-<!--                            <artifactId>processorutilities</artifactId>-->
-<!--                            <version>${project.version}</version>-->
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>processorutilities</artifactId>
+                            <version>${project.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

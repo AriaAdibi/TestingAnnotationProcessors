@@ -18,12 +18,14 @@ public class MoreElements {
   /* ********************************************************************* */
 
   /**
-   * Returns {@code true} if the given {@link Element} instance is a {@link TypeElement}.
+   * Returns {@code true} iff the given {@link Element} instance is a {@link TypeElement}.
    * Note that an enum type is a kind of class and an annotation type is a kind of interface.
    *
    * <p>This method is functionally equivalent to an {@code instanceof} check, but should
    * always be used over that idiom as instructed in the documentation for {@link Element}.
    *
+   * @param element the element to be checked
+   * @return {@code true} iff the given {@link Element} instance is a {@link TypeElement}
    * @throws NullPointerException if {@code element} is {@code null}
    */
   public static boolean isTypeElement(Element element) {
@@ -36,6 +38,12 @@ public class MoreElements {
    * {@code annotationClass}. This method is a safer alternative to calling {@link
    * Element#getAnnotation} and checking for {@code null} as it avoids any interaction with
    * annotation proxies.
+   *
+   * @param element the investigated element for the presence of specified annotation
+   * @param annotationClass the annotation passed as {@linkplain Class} whose presence is to be investigated
+   * @return {@code true} iff the given element has an {@linkplain AnnotationMirror} whose
+   *    {@linkplain AnnotationMirror#getAnnotationType() annotation type} has the same
+   *    canonical name as that of {@code annotationClass}
    */
   public static boolean isAnnotationPresent(Element element, Class<? extends Annotation> annotationClass) {
     return getAnnotationMirror(element, annotationClass).isPresent();
@@ -47,6 +55,12 @@ public class MoreElements {
    * of {@code annotation}. This method is a safer alternative to calling {@link
    * Element#getAnnotation} and checking for {@code null} as it avoids any interaction with
    * annotation proxies.
+   *
+   * @param element the investigated element for the presence of specified annotation
+   * @param annotation the annotation passed as {@linkplain TypeElement} whose presence is to be investigated
+   * @return {@code true} iff the given element has an {@link AnnotationMirror} whose {@linkplain
+   *    AnnotationMirror#getAnnotationType() annotation type} has the same fully qualified name as that
+   *    of {@code annotation}
    */
   public static boolean isAnnotationPresent(Element element, TypeElement annotation) {
     return getAnnotationMirror(element, annotation).isPresent();
@@ -57,6 +71,12 @@ public class MoreElements {
    * AnnotationMirror#getAnnotationType() annotation type} has {@code annotationName} as its
    * canonical name. This method is a safer alternative to calling {@link Element#getAnnotation} and
    * checking for {@code null} as it avoids any interaction with annotation proxies.
+   *
+   * @param element the investigated element for the presence of specified annotation
+   * @param annotationName the annotation passed as {@linkplain String} whose presence is to be investigated
+   * @return {@code true} iff the given element has an {@link AnnotationMirror} whose {@linkplain
+   *    AnnotationMirror#getAnnotationType() annotation type} has {@code annotationName} as its
+   *    canonical name
    */
   public static boolean isAnnotationPresent(Element element, String annotationName) {
     return getAnnotationMirror(element, annotationName).isPresent();
@@ -67,10 +87,12 @@ public class MoreElements {
   /* ********************************************************************* */
 
   /**
-   * An alternate implementation of {@link Elements#getPackageOf} that does not require an
-   * {@link Elements} instance.
+   * An alternate implementation of {@link Elements#getPackageOf} that does not require
+   * an {@link Elements} instance.
    *
-   * @throws NullPointerException if {@code element} is {@code null}
+   * @param element the element whose package is inquired
+   * @return the package of the element. The package of a package is itself.
+   * @throws NullPointerException if {@code element} is (1) {@code null}, or (2) a {@code module}
    */
   public static PackageElement getPackage(Element element) {
     while (element.getKind() != ElementKind.PACKAGE) {
@@ -83,11 +105,9 @@ public class MoreElements {
    * Rreturns the nearest enclosing {@link TypeElement} to the current element.
    *
    * @param element an element
-   *
-   * @return the nearest enclosing {@link TypeElement} to the current element.
-   *
+   * @return the nearest enclosing {@link TypeElement} to the current element
    * @throws IllegalArgumentException if the provided {@link Element} is a {@link PackageElement} or is
-   * otherwise not enclosed by a type.
+   * otherwise not enclosed by a type
    */
   public static TypeElement getEnclosingType(Element element) {
     return element.accept(
@@ -116,6 +136,12 @@ public class MoreElements {
    * {@code element}, or {@link Optional#empty()} if no such annotation exists. This method is a
    * safer alternative to calling {@link Element#getAnnotation} as it avoids any interaction with
    * annotation proxies.
+   *
+   * @param element the element whose annotation is inquired
+   * @param annotationClass the annotation of interest passed as {@linkplain Class}
+   * @return the {@linkplain Optional} of {@linkplain  AnnotationMirror} for the annotation of
+   *    type {@code annotationClass} on {@code element}, or {@linkplain Optional#empty()} if
+   *    no such annotation exists
    */
   public static Optional<AnnotationMirror> getAnnotationMirror(Element element, Class<? extends Annotation> annotationClass) {
     String name = annotationClass.getCanonicalName();
@@ -129,6 +155,12 @@ public class MoreElements {
    * element}, or {@link Optional#empty()} if no such annotation exists. This method is a safer
    * alternative to calling {@link Element#getAnnotation} as it avoids any interaction with
    * annotation proxies.
+   *
+   * @param element the element whose annotation is inquired
+   * @param annotation the annotation of interest passed as {@linkplain TypeElement}
+   * @return the {@linkplain Optional} of {@linkplain  AnnotationMirror} for the annotation of
+   *    type {@code annotation} on {@code element}, or {@linkplain Optional#empty()} if
+   *    no such annotation exists
    */
   public static Optional<AnnotationMirror> getAnnotationMirror(Element element, TypeElement annotation) {
     for (AnnotationMirror elementAnnotation : element.getAnnotationMirrors()) {
@@ -144,6 +176,12 @@ public class MoreElements {
    * element}, or {@link Optional#empty()} if no such annotation exists. This method is a safer
    * alternative to calling {@link Element#getAnnotation} as it avoids any interaction with
    * annotation proxies.
+   *
+   * @param element the element whose annotation is inquired
+   * @param annotationName the annotation of interest passed as {@linkplain String}
+   * @return the {@linkplain Optional} of {@linkplain  AnnotationMirror} for the annotation of
+   *    type {@code annotationName} on {@code element}, or {@linkplain Optional#empty()} if
+   *    no such annotation exists
    */
   public static Optional<AnnotationMirror> getAnnotationMirror(Element element, String annotationName) {
     for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
@@ -165,8 +203,10 @@ public class MoreElements {
    * <p>This method is functionally equivalent to an {@code instanceof} check and a cast, but should
    * always be used over that idiom as instructed in the documentation for {@link Element}.
    *
+   * @param element the element to be casted to {@linkplain PackageElement}
+   * @return the {@linkplain PackageElement} of the given element
    * @throws NullPointerException if {@code element} is {@code null}
-   * @throws IllegalArgumentException if {@code element} isn't a {@link PackageElement}.
+   * @throws IllegalArgumentException if {@code element} isn't a {@link PackageElement}
    */
   public static PackageElement asPackage(Element element) {
     return element.accept(CastingToPackageElementVisitor.INSTANCE, null);
@@ -178,8 +218,10 @@ public class MoreElements {
    * <p>This method is functionally equivalent to an {@code instanceof} check and a cast, but should
    * always be used over that idiom as instructed in the documentation for {@link Element}.
    *
+   * @param element the element to be casted to {@linkplain TypeElement}
+   * @return the {@linkplain TypeElement} of the given element
    * @throws NullPointerException if {@code element} is {@code null}
-   * @throws IllegalArgumentException if {@code element} isn't a {@link TypeElement}.
+   * @throws IllegalArgumentException if {@code element} isn't a {@link TypeElement}
    */
   public static TypeElement asTypeElement(Element element) {
     return element.accept(CastingToTypeElementVisitor.INSTANCE, null);
@@ -191,8 +233,10 @@ public class MoreElements {
    * <p>This method is functionally equivalent to an {@code instanceof} check and a cast, but should
    * always be used over that idiom as instructed in the documentation for {@link Element}.
    *
+   * @param element the element to be casted to {@linkplain ExecutableElement}
+   * @return the {@linkplain ExecutableElement} of the given element
    * @throws NullPointerException if {@code element} is {@code null}
-   * @throws IllegalArgumentException if {@code element} isn't a {@link ExecutableElement}.
+   * @throws IllegalArgumentException if {@code element} isn't a {@link ExecutableElement}
    */
   public static ExecutableElement asExecutable(Element element) {
     return element.accept(CastingToExecutableElementVisitor.INSTANCE, null);
@@ -204,8 +248,10 @@ public class MoreElements {
    * <p>This method is functionally equivalent to an {@code instanceof} check and a cast, but should
    * always be used over that idiom as instructed in the documentation for {@link Element}.
    *
+   * @param element the element to be casted to {@linkplain TypeParameterElement}
+   * @return the {@linkplain TypeParameterElement} of the given element
    * @throws NullPointerException if {@code element} is {@code null}
-   * @throws IllegalArgumentException if {@code element} isn't a {@link TypeParameterElement}.
+   * @throws IllegalArgumentException if {@code element} isn't a {@link TypeParameterElement}
    */
   public static TypeParameterElement asTypeParameter(Element element) {
     return element.accept(CastingToTypeParameterElementVisitor.INSTANCE, null);
@@ -217,8 +263,10 @@ public class MoreElements {
    * <p>This method is functionally equivalent to an {@code instanceof} check and a cast, but should
    * always be used over that idiom as instructed in the documentation for {@link Element}.
    *
+   * @param element the element to be casted to {@linkplain VariableElement}
+   * @return the {@linkplain VariableElement} of the given element
    * @throws NullPointerException if {@code element} is {@code null}
-   * @throws IllegalArgumentException if {@code element} isn't a {@link VariableElement}.
+   * @throws IllegalArgumentException if {@code element} isn't a {@link VariableElement}
    */
   public static VariableElement asVariable(Element element) {
     return element.accept(CastingToVariableElementVisitor.INSTANCE, null);

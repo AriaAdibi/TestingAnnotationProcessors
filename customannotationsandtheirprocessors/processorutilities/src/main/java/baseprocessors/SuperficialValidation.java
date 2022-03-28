@@ -22,18 +22,24 @@ public final class SuperficialValidation {
   /* ********************************************************************* */
 
   /**
-   * Returns true if all of the given elements return true from {@link #validateElement(Element)}.
+   * Returns {@code true} iff all the given elements return true from {@link #validateElement(Element)}.
+   *
+   * @param elements elements to be superficially validated
+   * @return {@code true} iff all the given elements return true from {@link #validateElement(Element)}
    */
-  public static boolean validateElements(Iterable<? extends Element> elements) {
+  public static boolean validateElements(Iterable<? extends Element> elements) { //TODO maybe merge the singular and plural methods into one later
     return StreamSupport.stream(elements.spliterator(), false)
         .allMatch(SuperficialValidation::validateElement);
   }
 
   /**
-   * Returns true if all types referenced by the given element are defined. The exact meaning of
+   * Returns {@code true} iff all types referenced by the given element are defined. The exact meaning of
    * this depends on the kind of element. For packages, it means that all annotations on the package
    * are fully defined. For other element kinds, it means that types referenced by the element,
-   * anything it contains, and any of its annotations element are all defined.
+   * anything it contains, and any of its annotations' element are all defined.
+   *
+   * @param element element to be validated
+   * @return {@code true} iff all types referenced by the given element are defined
    */
   public static boolean validateElement(Element element) {
     return element.accept(ELEMENT_VALIDATING_VISITOR, null);
@@ -98,7 +104,13 @@ public final class SuperficialValidation {
   /* Type Validators ***************************************************** */
   /* ********************************************************************* */
 
-  private static boolean validateTypes(Iterable<? extends TypeMirror> types) {
+  /**
+   * Returns {@code true} iff all the given type-mirrors return true from {@link #validateType(TypeMirror)}.
+   *
+   * @param types type-mirrors to be superficially validated
+   * @return {@code true} iff all the given type-mirrors return true from {@link #validateType(TypeMirror)}
+   */
+  public static boolean validateTypes(Iterable<? extends TypeMirror> types) {
     for (TypeMirror type : types)
       if (!validateType(type))
         return false;
@@ -106,10 +118,13 @@ public final class SuperficialValidation {
   }
 
   /**
-   * Returns true if the given type is fully defined. This means that the type itself is defined, as
-   * are any types it references, such as any type arguments or type bounds. For an {@link
-   * ExecutableType}, the parameter and return types must be fully defined, as must types declared
-   * in a {@code throws} clause or in the bounds of any type parameters.
+   * Returns {@code true} iff the given type is fully defined. This means that the type itself is
+   * defined, as are any types it references, such as any type arguments or type bounds. For an
+   * {@link ExecutableType}, the parameter and return types must be fully defined, as must types
+   * declared in a {@code throws} clause or in the bounds of any type parameters.
+   *
+   * @param type the {@linkplain TypeMirror} whose definition is to be validated
+   * @return {@code true} iff the given {@linkplain TypeMirror} is fully defined
    */
   public static boolean validateType(TypeMirror type) {
     return type.accept(TYPE_VALIDATING_VISITOR, null);
@@ -169,14 +184,29 @@ public final class SuperficialValidation {
   /* Annotation Validators *********************************************** */
   /* ********************************************************************* */
 
-  private static boolean validateAnnotations(Iterable<? extends AnnotationMirror> annotationMirrors) {
+  /**
+   * Returns {@code true} iff all the given annotation-mirrors return true
+   * from {@link #validateAnnotation(AnnotationMirror)}.
+   *
+   * @param annotationMirrors annotation-mirrors to be superficially validated
+   * @return {@code true} iff all the given annotation-mirrors return true from {@link #validateAnnotation(AnnotationMirror)}
+   */
+  public static boolean validateAnnotations(Iterable<? extends AnnotationMirror> annotationMirrors) {
     for (AnnotationMirror annotationMirror : annotationMirrors)
       if (!validateAnnotation(annotationMirror))
         return false;
     return true;
   }
 
-  private static boolean validateAnnotation(AnnotationMirror annotationMirror) {
+  /**
+   * Returns {@code true} iff the given annotationMirror is fully defined. This means that the type
+   * of the annotation itself, as well as any types references, such as any type arguments, type bounds
+   * the type of its elements, and the types of the values passed to these elements are all fully defined.
+   *
+   * @param annotationMirror the {@linkplain AnnotationMirror} whose definition is to be validated
+   * @return {@code true} iff the given {@linkplain AnnotationMirror} is fully defined
+   */
+  public static boolean validateAnnotation(AnnotationMirror annotationMirror) {
     return validateType(annotationMirror.getAnnotationType())
         && validateAnnotationValues(annotationMirror.getElementValues());
   }
