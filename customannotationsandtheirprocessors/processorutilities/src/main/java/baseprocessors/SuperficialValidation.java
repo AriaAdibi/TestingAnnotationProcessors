@@ -56,11 +56,11 @@ public final class SuperficialValidation {
 
         @Override public Boolean visitModule(ModuleElement t, Void unused) {
           return visitUnknown(t, unused); //Ignore Modules
-        }
+        } //TODO
 
         @Override
         public Boolean visitPackage(PackageElement e, Void p) {
-          // don't validate enclosed elements because it will return types in the package
+          // does not validate enclosed elements because it will return types in the package
           return validateAnnotations(e.getAnnotationMirrors());
         }
 
