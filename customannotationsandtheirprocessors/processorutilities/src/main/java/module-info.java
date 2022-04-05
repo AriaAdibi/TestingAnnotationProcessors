@@ -13,6 +13,7 @@ module processorutilities {
 
   requires static annotations;
   requires static com.squareup.javapoet;
+  requires org.checkerframework.checker.qual;
 
-//  provides javax.annotation.processing.Processor with processors.PoeticIterativeEpilogueProcessor;
+  //  provides javax.annotation.processing.Processor with processors.PoeticIterativeEpilogueProcessor;
 }

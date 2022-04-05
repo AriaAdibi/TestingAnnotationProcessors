@@ -7,6 +7,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import utils.MoreElements;
 
 import javax.lang.model.element.*;
 import javax.lang.model.util.ElementFilter;
@@ -19,7 +20,8 @@ import java.util.Optional;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 @RunWith(JUnit4.class)
 public class MoreElementsTest {
@@ -49,12 +51,12 @@ public class MoreElementsTest {
     //TODO add test for unnamed package (I already tested it, it works)
   }
 
-//  @Test
-//  public void getEnclosingType() {
-//    //TODO
-//  }
+  //  @Test
+  //  public void getEnclosingType() {
+  //    //TODO
+  //  }
 
-  //TODO change the name of mehtods in accordance to changes made in MoreElements; e.g. asType --> asTypeElement
+  //TODO change the name of methods in accordance to changes made in MoreElements; e.g. asType --> asTypeElement
   @Test
   public void asPackage() {
     assertThat(MoreElements.asPackage(javaLangPackageElement)).isEqualTo(javaLangPackageElement);
@@ -69,12 +71,12 @@ public class MoreElementsTest {
     }
   }
 
-//  @Test
-//  public void asTypeElement() { //TODO unnecessary, replicated with the other one + also add fundtion for isType
-//    Element typeElement = elements.getTypeElement(String.class.getCanonicalName());
-//    assertTrue(MoreElements.isTypeElement(typeElement));
-//    assertThat(MoreElements.asTypeElement(typeElement)).isEqualTo(typeElement);
-//  }
+  //  @Test
+  //  public void asTypeElement() { //TODO unnecessary, replicated with the other one + also add test for isType
+  //    Element typeElement = elements.getTypeElement(String.class.getCanonicalName());
+  //    assertTrue(MoreElements.isTypeElement(typeElement));
+  //    assertThat(MoreElements.asTypeElement(typeElement)).isEqualTo(typeElement);
+  //  }
 
   @Test
   public void asTypeElement_notATypeElement() { //TODO Unnecessary, at lease modify
@@ -161,11 +163,14 @@ public class MoreElementsTest {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  private @interface InnerAnnotation {}
+  private @interface InnerAnnotation {
+  }
+
 
   @Documented
   @InnerAnnotation
-  private @interface AnnotatedAnnotation {}
+  private @interface AnnotatedAnnotation {
+  }
 
   @Test
   public void isAnnotationPresent() {
@@ -207,44 +212,44 @@ public class MoreElementsTest {
   }
 
   @Test
-  public void getAnnotationMirror() {
+  public void getAnnotationMirrorOfType() {
     TypeElement element =
         elements.getTypeElement(AnnotatedAnnotation.class.getCanonicalName());
 
     // Test Class API
     getAnnotationMirrorAsserts(
-        MoreElements.getAnnotationMirror(element, Documented.class),
-        MoreElements.getAnnotationMirror(element, InnerAnnotation.class),
-        MoreElements.getAnnotationMirror(element, SuppressWarnings.class));
+        MoreElements.getAnnotationMirrorOfType(element, Documented.class),
+        MoreElements.getAnnotationMirrorOfType(element, InnerAnnotation.class),
+        MoreElements.getAnnotationMirrorOfType(element, SuppressWarnings.class));
 
     // Test String API
     String documentedName = Documented.class.getCanonicalName();
     String innerAnnotationName = InnerAnnotation.class.getCanonicalName();
     String suppressWarningsName = SuppressWarnings.class.getCanonicalName();
     getAnnotationMirrorAsserts(
-        MoreElements.getAnnotationMirror(element, documentedName),
-        MoreElements.getAnnotationMirror(element, innerAnnotationName),
-        MoreElements.getAnnotationMirror(element, suppressWarningsName));
+        MoreElements.getAnnotationMirrorOfType(element, documentedName),
+        MoreElements.getAnnotationMirrorOfType(element, innerAnnotationName),
+        MoreElements.getAnnotationMirrorOfType(element, suppressWarningsName));
 
     // Test TypeElement API
     TypeElement documentedElement = elements.getTypeElement(documentedName);
     TypeElement innerAnnotationElement = elements.getTypeElement(innerAnnotationName);
     TypeElement suppressWarningsElement = elements.getTypeElement(suppressWarningsName);
     getAnnotationMirrorAsserts(
-        MoreElements.getAnnotationMirror(element, documentedElement),
-        MoreElements.getAnnotationMirror(element, innerAnnotationElement),
-        MoreElements.getAnnotationMirror(element, suppressWarningsElement));
+        MoreElements.getAnnotationMirrorOfType(element, documentedElement),
+        MoreElements.getAnnotationMirrorOfType(element, innerAnnotationElement),
+        MoreElements.getAnnotationMirrorOfType(element, suppressWarningsElement));
   }
 
   @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "Guava"})
   private void getAnnotationMirrorAsserts(
-      Optional<AnnotationMirror> jDocumented,
-      Optional<AnnotationMirror> jInnerAnnotation,
-      Optional<AnnotationMirror> jSuppressWarnings) {
+      Optional<? extends AnnotationMirror> jDocumented,
+      Optional<? extends AnnotationMirror> jInnerAnnotation,
+      Optional<? extends AnnotationMirror> jSuppressWarnings) {
     // TODO for now just quick fix
-    com.google.common.base.Optional<AnnotationMirror> documented = com.google.common.base.Optional.fromJavaUtil(jDocumented);
-    com.google.common.base.Optional<AnnotationMirror> innerAnnotation = com.google.common.base.Optional.fromJavaUtil(jInnerAnnotation);
-    com.google.common.base.Optional<AnnotationMirror> suppressWarnings = com.google.common.base.Optional.fromJavaUtil(jSuppressWarnings);
+    com.google.common.base.Optional<? extends AnnotationMirror> documented = com.google.common.base.Optional.fromJavaUtil(jDocumented);
+    com.google.common.base.Optional<? extends AnnotationMirror> innerAnnotation = com.google.common.base.Optional.fromJavaUtil(jInnerAnnotation);
+    com.google.common.base.Optional<? extends AnnotationMirror> suppressWarnings = com.google.common.base.Optional.fromJavaUtil(jSuppressWarnings);
     expect.that(documented).isPresent();
     expect.that(innerAnnotation).isPresent();
     expect.that(suppressWarnings).isAbsent();

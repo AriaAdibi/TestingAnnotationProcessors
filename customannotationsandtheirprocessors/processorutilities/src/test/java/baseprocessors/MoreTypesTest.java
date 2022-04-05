@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import utils.MoreTypes;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
@@ -157,63 +158,90 @@ public class MoreTypesTest {
 
   @SuppressWarnings("unused")
   private static final class ExecutableElementsGroupA {
-    ExecutableElementsGroupA() {}
+    ExecutableElementsGroupA() {
+    }
 
-    void a() {}
+    void a() {
+    }
 
-    public static void b() {}
+    public static void b() {
+    }
   }
+
 
   @SuppressWarnings("unused")
   private static final class ExecutableElementsGroupB {
-    ExecutableElementsGroupB(String s) {}
+    ExecutableElementsGroupB(String s) {
+    }
 
-    void a(String s) {}
+    void a(String s) {
+    }
 
-    public static void b(String s) {}
+    public static void b(String s) {
+    }
   }
+
 
   @SuppressWarnings({"unused", "RedundantThrows"})
   private static final class ExecutableElementsGroupC {
-    ExecutableElementsGroupC() throws Exception {}
+    ExecutableElementsGroupC() throws Exception {
+    }
 
-    void a() throws Exception {}
+    void a() throws Exception {
+    }
 
-    public static void b() throws Exception {}
+    public static void b() throws Exception {
+    }
   }
+
 
   @SuppressWarnings("unused")
   private static final class ExecutableElementsGroupD {
-    ExecutableElementsGroupD() throws RuntimeException {}
+    ExecutableElementsGroupD() throws RuntimeException {
+    }
 
-    void a() throws RuntimeException {}
+    void a() throws RuntimeException {
+    }
 
-    public static void b() throws RuntimeException {}
+    public static void b() throws RuntimeException {
+    }
   }
+
 
   @SuppressWarnings("unused")
   private static final class ExecutableElementsGroupE {
-    <T> ExecutableElementsGroupE() {}
+    <T> ExecutableElementsGroupE() {
+    }
 
-    <T> void a() {}
+    <T> void a() {
+    }
 
-    public static <T> void b() {}
+    public static <T> void b() {
+    }
   }
+
 
   @SuppressWarnings("unused")
   private static final class Container<T> {
     @SuppressWarnings("InnerClassMayBeStatic")
-    private final class Contained {}
+    private final class Contained {
+    }
   }
 
-  @SuppressWarnings("unused")
-  private static final class FunkyBounds<T extends Number & Comparable<T>> {}
 
   @SuppressWarnings("unused")
-  private static final class FunkyBounds2<T extends Number & Comparable<T>> {}
+  private static final class FunkyBounds<T extends Number & Comparable<T>> {
+  }
+
 
   @SuppressWarnings("unused")
-  private static final class FunkierBounds<T extends Number & Comparable<T> & Cloneable> {}
+  private static final class FunkyBounds2<T extends Number & Comparable<T>> {
+  }
+
+
+  @SuppressWarnings("unused")
+  private static final class FunkierBounds<T extends Number & Comparable<T> & Cloneable> {
+  }
 
   @Test
   public void testReferencedTypes() {
@@ -255,7 +283,7 @@ public class MoreTypesTest {
     return MoreTypes.referencedTypeElements(field.asType());
   }
 
-  @SuppressWarnings("unused") // types used in compiler tests
+  @SuppressWarnings({"unused", "NotNullFieldNotInitialized"}) // types used in compiler tests
   private static final class ReferencedTypesTestData {
     Object f1;
     Set<String> f2;
@@ -271,15 +299,25 @@ public class MoreTypesTest {
     Set<? super String> f12;
   }
 
-  private static class Parent<T> {}
 
-  private static class ChildA extends Parent<Number> {}
+  private static class Parent<T> {
+  }
 
-  private static class ChildB extends Parent<String> {}
 
-  private static class GenericChild<T> extends Parent<T> {}
+  private static class ChildA extends Parent<Number> {
+  }
 
-  private interface InterfaceType {}
+
+  private static class ChildB extends Parent<String> {
+  }
+
+
+  private static class GenericChild<T> extends Parent<T> {
+  }
+
+
+  private interface InterfaceType {
+  }
 
   @Test
   public void asElement_throws() {
@@ -303,19 +341,28 @@ public class MoreTypesTest {
     // we don't test error types because those are very hard to get predictably
   }
 
+  @SuppressWarnings("NotNullFieldNotInitialized")
   private static class Params<T> {
     @SuppressWarnings("unused")
     T t;
 
     @SuppressWarnings("unused")
-    void add(T t) {}
+    void add(T t) {
+    }
   }
 
-  private static class NumberParams extends Params<Number> {}
 
-  private static class StringParams extends Params<String> {}
+  private static class NumberParams extends Params<Number> {
+  }
 
-  private static class GenericParams<T> extends Params<T> {}
+
+  private static class StringParams extends Params<String> {
+  }
+
+
+  private static class GenericParams<T> extends Params<T> {
+  }
+
 
   private static final ErrorType FAKE_ERROR_TYPE =
       new ErrorType() {
@@ -345,12 +392,12 @@ public class MoreTypesTest {
         }
 
         @Override
-        public <A extends Annotation> A @Nullable [] getAnnotationsByType(Class<A> annotationType) {
+        public @Nullable <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
           return null;
         }
 
         @Override
-        public <A extends Annotation> @Nullable A getAnnotation(Class<A> annotationType) {
+        public @Nullable <A extends Annotation> A getAnnotation(Class<A> annotationType) {
           return null;
         }
 
@@ -362,22 +409,22 @@ public class MoreTypesTest {
       };
 
   @Test
-  public void testIsTypeOf() {
+  public void testIsExactTypeOf() {
     Types types = compilationRule.getTypes();
     PrimitiveType intType = types.getPrimitiveType(TypeKind.INT);
     TypeMirror integerType = types.boxedClass(intType).asType();
     WildcardType wildcardType = types.getWildcardType(null, null);
-    expect.that(MoreTypes.isTypeOf(int.class, intType)).isTrue();
-    expect.that(MoreTypes.isTypeOf(Integer.class, integerType)).isTrue();
-    expect.that(MoreTypes.isTypeOf(Integer.class, intType)).isFalse();
-    expect.that(MoreTypes.isTypeOf(int.class, integerType)).isFalse();
-    expect.that(MoreTypes.isTypeOf(Integer.class, FAKE_ERROR_TYPE)).isFalse();
+    expect.that(MoreTypes.isExactTypeOf(int.class, intType)).isTrue();
+    expect.that(MoreTypes.isExactTypeOf(Integer.class, integerType)).isTrue();
+    expect.that(MoreTypes.isExactTypeOf(Integer.class, intType)).isFalse();
+    expect.that(MoreTypes.isExactTypeOf(int.class, integerType)).isFalse();
+    expect.that(MoreTypes.isExactTypeOf(Integer.class, FAKE_ERROR_TYPE)).isFalse();
     assertThrows(
-        IllegalArgumentException.class, () -> MoreTypes.isTypeOf(Integer.class, wildcardType));
+        IllegalArgumentException.class, () -> MoreTypes.isExactTypeOf(Integer.class, wildcardType));
   }
 
   // The type of every field here is such that casting to it provokes an "unchecked" warning.
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "NotNullFieldNotInitialized"})
   private static class Unchecked<T> {
     private List<String> listOfString;
     private List<? extends CharSequence> listOfExtendsCharSequence;
@@ -391,8 +438,9 @@ public class MoreTypesTest {
     private Map<String, ?> mapStringToWildcard;
   }
 
+
   // The type of every field here is such that casting to it doesn't provoke an "unchecked" warning.
-  @SuppressWarnings("unused")
+  @SuppressWarnings({"unused", "NotNullFieldNotInitialized"})
   private static class NotUnchecked {
     private String string;
     private int integer;

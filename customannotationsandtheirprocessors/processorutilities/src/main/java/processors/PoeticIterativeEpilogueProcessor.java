@@ -1,23 +1,26 @@
 package processors;
 
-import baseprocessors.BaseAnnotationProcessor;
+import baseprocessors.UtilizedBaseAnnotationProcessor;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import lombok.Data;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @SupportedAnnotationTypes("customannotations.CreateEpilogue")
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 @AutoService(Processor.class)
-public class PoeticIterativeEpilogueProcessor extends BaseAnnotationProcessor {
+public class PoeticIterativeEpilogueProcessor extends UtilizedBaseAnnotationProcessor {
 
   @Data
   private final class EpilogueDraftState {
@@ -35,25 +38,24 @@ public class PoeticIterativeEpilogueProcessor extends BaseAnnotationProcessor {
     public void create( boolean isFinal ) {
       String draftName = isFinal ? "TheEpilogue" : "TheEpilogueDraft" + draftNumber++;
 
-      AnnotationSpec generatedAnnot = AnnotationSpec.builder(Generated.class)
-          .addMember("value", "\"processors.PoeticIterativeEpilogueProcessor\"")
-          .addMember("date", "\"" + LocalDateTime.now() + "\"") //now() Returns LocalDateTime, but toString() is inferred.
-          .build();
-
       TypeSpec theDraftClass = TypeSpec.classBuilder(draftName)
           .addModifiers(Modifier.PUBLIC)
-          .addAnnotation(generatedAnnot)
+          .addAnnotation( getDefaultGeneratedAnnotationSpec() )
           .addMethod(this.printEpilogueMethodBuilder.build())
           .build();
 
-      JavaFile jFile = JavaFile.builder("epilogues", theDraftClass).build();
+//      if( !isFinal ) {
+//        FileObject jfo = processingEnv.getFiler().getResource(StandardLocation.SOURCE_OUTPUT, "epilogues", theDraftClass.toString()+".txt");
+//        try {
+//          jfo.openWriter().write(
+//        } catch (IOException e) {
+//          System.err.println("Oh, why thee shalt not write?!" + e.getMessage());
+//          e.printStackTrace();
+//        }
+//      }
+//      else
+        javaFileWriteTo( "epilogues", theDraftClass);
 
-      try {
-        jFile.writeTo( processingEnv.getFiler() );
-      } catch (IOException e) {
-        System.err.println( "Oh, why thee shalt not write?!" + e.getMessage() );
-        e.printStackTrace();
-      }
     }
 
   }
@@ -75,10 +77,7 @@ public class PoeticIterativeEpilogueProcessor extends BaseAnnotationProcessor {
           @Override
           public ImmutableSet<? extends Element> process(ImmutableSetMultimap<String, Element> elementsByAnnotation) {
 
-            for (Map.Entry<String, Element> elementByAnnotation : elementsByAnnotation.entries()) {
-              if( !elementByAnnotation.getKey().equals("customannotations.CreateEpilogue") )
-                throw new IllegalArgumentException("Unexpected annotation is sent to be processed: " + elementByAnnotation.getKey());
-              Element element = elementByAnnotation.getValue();
+            for (Element element : elementsByAnnotation.values()) {
 
               /* Get Annotation values */
               boolean shouldBeRevised = false;

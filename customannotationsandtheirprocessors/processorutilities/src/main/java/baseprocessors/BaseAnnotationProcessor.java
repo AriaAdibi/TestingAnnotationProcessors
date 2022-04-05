@@ -3,7 +3,8 @@ package baseprocessors;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
 import lombok.Data;
-import lombok.NonNull;
+import utils.MoreElements;
+import utils.MoreTypes;
 
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
@@ -19,11 +20,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static baseprocessors.MoreElements.getEnclosingType;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Multimaps.filterKeys;
+import static utils.MoreElements.getEnclosingType;
 
 /**
  * An abstract {@link Processor} implementation that defers processing of {@link Element}s to later
@@ -63,6 +64,7 @@ import static com.google.common.collect.Multimaps.filterKeys;
  *    <li>{@code typeUtils}, the default type utility class {@link Types}
  *        (Class {@link MoreTypes} provides additional utilities)</li>
  *    <li>{@code messager}, the default annotation processor messager {@link Messager}</li>
+ *    <li>{@code filer}, the default annotation processor file creator {@link Filer}</li>
  * </ul>
  *
  * <p>Any logic that needs to happen once per round should be specified in {@link
@@ -117,6 +119,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
   /* ProcessingSteps, to be implemented by the user ********************** */
   /* ********************************************************************* */
 
+
   /**
    * The unit of processing logic that runs under the guarantee that all elements are complete and
    * well-formed. A {@code ProcessingStep} may reject elements that are not ready for processing but
@@ -127,23 +130,27 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
     /**
      * The set of fully-qualified annotation type names processed by this {@code ProcessingStep}.
      *
-     * @return the set of fully-qualified annotation type names processed by this {@code ProcessingStep}.
+     * @return the set of fully-qualified annotation names processed by this {@code ProcessingStep}.
      *
-     * <p><strong>Warning</strong>: If the returned names are not the names of annotations, they'll be <em>ignored</em>.
+     * <p><strong>Warning</strong>: If the returned names are not the names of annotations,
+     * they'll be <em>ignored</em>.
      */
     Set<String> annotations();
 
     /**
-     * The implementation of processing logic for the {@code ProcessingStep}. It is guaranteed that the keys in {@code
-     * elementsByAnnotation} will be a subset of the set returned by {@link #annotations()}.
+     * The implementation of processing logic for the {@code ProcessingStep}. It is guaranteed
+     * that the keys in {@code elementsByAnnotation} will be a subset of the set returned by
+     * {@link #annotations()}.
      *
-     * @param elementsByAnnotation the elements to be processed mapped to their invoking annotation.
-     * It is guaranteed that the keys in {@code elementsByAnnotation} will be a subset of the set returned
-     * by {@link #annotations()}. Additionally, the well-formedness of the elements are also guaranteed.
-     *
-     * @return the elements (a subset of the values of {@code elementsByAnnotation}) that this {@code ProcessingStep}
-     * is unable to process at the current processing step. These elements are deferred and will be considered again in
-     * future steps and rounds of processing, until either properly processed or reported as not processed elements.
+     * @param elementsByAnnotation the elements to be processed mapped to their invoking
+     *                             annotation. It is guaranteed that the keys in
+     *                             {@code elementsByAnnotation} will be a subset of the set
+     *                             returned by {@link #annotations()}. Additionally, the
+     *                             well-formedness of the elements are also guaranteed.
+     * @return the elements (a subset of the values of {@code elementsByAnnotation}) that
+     * this {@code ProcessingStep} is unable to process at the current processing step.
+     * These elements are deferred and will be considered again in future steps and rounds
+     * of processing, until either properly processed or reported as not processed elements.
      */
     Set<? extends Element> process(ImmutableSetMultimap<String, Element> elementsByAnnotation);
   }
@@ -158,17 +165,22 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
 
   /**
    * An optional hook for logic to be executed at the beginning of each round.
+   *
    * @param roundEnv {@code RoundEnvironment} of the processor.
    */
   protected abstract void preRoundProcess(RoundEnvironment roundEnv);
 
   /**
    * An optional hook for logic to be executed at the end of each round.
+   *
    * @param roundEnv {@code RoundEnvironment} of the processor.
    */
   protected abstract void postRoundProcess(RoundEnvironment roundEnv);
 
-  /** @return true if the annotations should be claimed after the process. Default is {@code false}. */
+  /**
+   * @return true if the annotations should be claimed after the process. Default is {@code false}.
+   */
+  @SuppressWarnings("SameReturnValue")
   protected boolean shouldClaimAnnotations() {
     return false;
   }
@@ -187,6 +199,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
   protected Elements eltUtils;
   protected Types typeUtils;
   protected Messager messager;
+  protected Filer filer;
   private ImmutableList<? extends ProcessingStep> processingSteps;
 
   @Override
@@ -195,7 +208,8 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
     this.eltUtils = processingEnv.getElementUtils();
     this.typeUtils = processingEnv.getTypeUtils();
     this.messager = processingEnv.getMessager();
-    this.processingSteps = ImmutableList.copyOf( processingSteps() );
+    this.filer = processingEnv.getFiler();
+    this.processingSteps = ImmutableList.copyOf(processingSteps());
   }
 
   /**
@@ -203,7 +217,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
    * {@linkplain ProcessingStep}s.
    *
    * @return the set of supported annotation types as collected from registered
-   *    {@linkplain ProcessingStep}s.
+   * {@linkplain ProcessingStep}s.
    */
   @Override
   public final ImmutableSet<String> getSupportedAnnotationTypes() {
@@ -243,13 +257,15 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
    * Processor} must gracefully handle an empty set of annotations.
    *
    * @param annotations the annotation types requested to be processed
-   * @param roundEnv  environment for information about the current and prior round
+   * @param roundEnv    environment for information about the current and prior round
    * @return whether or not the set of annotation types are claimed by this processor
    */
   @Override
   public final boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     checkState(eltUtils != null);
+    checkState(typeUtils != null);
     checkState(messager != null);
+    checkState(filer != null);
     checkState(processingSteps != null);
 
     preRoundProcess(roundEnv);
@@ -270,7 +286,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
       return shouldClaimAnnotations();
     }
 
-    process( getWellInformedElements(roundEnv) );
+    process(getWellInformedElements(roundEnv));
 
     postRoundProcess(roundEnv);
 
@@ -288,9 +304,8 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
             ),
             missingTPElement.get()
         );
-      }
-      else {
-        messager.printMessage( Diagnostic.Kind.ERROR, processingErrorMessage(missingTPEltName.getName()) );
+      } else {
+        messager.printMessage(Diagnostic.Kind.ERROR, processingErrorMessage(missingTPEltName.getName()));
       }
     }
   }
@@ -307,7 +322,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
    * Finds all the well-informed annotated elements contained within all of the ill-informed elements.
    * Note that the elements deferred by processing steps are guaranteed to be well-informed; therefore,
    * they are ignored (not returned) here, and they will be considered directly in the `process` method.
-   *
+   * <p>
    * It then returns all these elements together with well-informed elements associated to the current round.
    * All encountered ill-informed elements will be deferred.
    */
@@ -321,13 +336,13 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
     for (TPEltName deferredTPEltName : prevIllInformedTPEltNames) {
       Optional<? extends Element> deferredTPElement = deferredTPEltName.getElement(eltUtils);
       if (deferredTPElement.isPresent()) {
-        addAllInclusiveEnclosedAnnotatedElementsByAnnotations( //It will add the element and its enclosed elements (excluding (inner) class and interface) if there is a matching annotation
+        addAllInclusiveEnclosedAnnotatedElementsByAnnotations(
+            //It will add the element and its enclosed elements (excluding (inner) class and interface) if there is a matching annotation
             deferredTPElement.get(),
             getSupportedAnnotationTypeElements(),
             readyPrevIllinformedElementsByAnnotationBuilder
         );
-      }
-      else {
+      } else {
         // no element with deferredTPEltName could be found (yet).
         // [  At some point the element was seen before, since at some point its TPEltName
         //    was extracted and added to `illInformedTPEltNames;` however, now it is not found. ]
@@ -353,9 +368,10 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
         TPEltName tpEltName = TPEltName.forElement(element);
         boolean isWellInformedElement =
             wellInformedTPEltNames.contains(tpEltName) || // for optimization
-                ( !illInformedTPEltNames.contains(tpEltName) &&
+                (!illInformedTPEltNames.contains(tpEltName) &&
                     // for every element that is not module/package to be well-informed its enclosing-type in its entirety should be well-informed
-                    SuperficialValidation.validateElement(element.getKind() == ElementKind.PACKAGE ? element : getEnclosingType(element)) //TODO maybe add Module handling
+                    SuperficialValidation.validateElement(
+                        element.getKind() == ElementKind.PACKAGE ? element : MoreElements.getEnclosingType(element)) //TODO maybe add Module handling
                 );
         if (isWellInformedElement) {
           wellInformedEltsBuilder.put(annotationType, element);
@@ -422,26 +438,27 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
 
   }
 
-  /** Processes the well-informed elements, including those previously deferred by each step. */
+  /**
+   * Processes the well-informed elements, including those previously deferred by each step.
+   */
   private void process(ImmutableSetMultimap<TypeElement, Element> wellInformedElements) {
-        for (ProcessingStep processingStep : this.processingSteps) {
-          ImmutableSet<TypeElement> annotationTypes = getSupportedAnnotationTypeElements(processingStep);
-          ImmutableSetMultimap<TypeElement, Element> processingStepElements =
-              new ImmutableSetMultimap.Builder<TypeElement, Element>()
-                  // Add previously rejected (deferred) elements by processingSteps. Note that all the members are
-                  // well-informed, since they were passed to at least one processing step.
-                  .putAll( getAllInclusiveEnclosedAnnotatedElementsByAnnotations(tPEltNamesDeferredByProcessingSteps.get(processingStep), annotationTypes) )
-                  .putAll( filterKeys(wellInformedElements, Predicates.in(annotationTypes)) )
-                  .build();
-          if (processingStepElements.isEmpty()) {
-            tPEltNamesDeferredByProcessingSteps.removeAll(processingStep);
-          }
-          else {
-            Set<? extends Element> rejectedElements = processingStep.process(toClassNameKeyedMultimap(processingStepElements));
-            //noinspection StaticPseudoFunctionalStyleMethod
-            tPEltNamesDeferredByProcessingSteps.replaceValues(processingStep, transform(rejectedElements, TPEltName::forElement));
-          }
-        }
+    for (ProcessingStep processingStep : this.processingSteps) {
+      ImmutableSet<TypeElement> annotationTypes = getSupportedAnnotationTypeElements(processingStep);
+      ImmutableSetMultimap<TypeElement, Element> processingStepElements =
+          new ImmutableSetMultimap.Builder<TypeElement, Element>()
+              // Add previously rejected (deferred) elements by processingSteps. Note that all the members are
+              // well-informed, since they were passed to at least one processing step.
+              .putAll(getAllInclusiveEnclosedAnnotatedElementsByAnnotations(tPEltNamesDeferredByProcessingSteps.get(processingStep), annotationTypes))
+              .putAll(filterKeys(wellInformedElements, Predicates.in(annotationTypes)))
+              .build();
+      if (processingStepElements.isEmpty()) {
+        tPEltNamesDeferredByProcessingSteps.removeAll(processingStep);
+      } else {
+        Set<? extends Element> rejectedElements = processingStep.process(toClassNameKeyedMultimap(processingStepElements));
+        //noinspection StaticPseudoFunctionalStyleMethod
+        tPEltNamesDeferredByProcessingSteps.replaceValues(processingStep, transform(rejectedElements, TPEltName::forElement));
+      }
+    }
   }
 
 
@@ -449,11 +466,12 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
     ImmutableSetMultimap.Builder<String, Element> builder = ImmutableSetMultimap.builder();
     elements.asMap().forEach(
         (annotation, element) -> builder.putAll(annotation.getQualifiedName().toString(), element)
-        );
+    );
     return builder.build();
   }
 
-  private ImmutableSetMultimap<TypeElement, Element> getAllInclusiveEnclosedAnnotatedElementsByAnnotations (Set<TPEltName> annotatedTPEltNames, ImmutableSet<TypeElement> annotationTypes) {
+  private ImmutableSetMultimap<TypeElement, Element> getAllInclusiveEnclosedAnnotatedElementsByAnnotations(Set<TPEltName> annotatedTPEltNames,
+      ImmutableSet<TypeElement> annotationTypes) {
     ImmutableSetMultimap.Builder<TypeElement, Element> annotatedElements = ImmutableSetMultimap.builder();
     for (TPEltName tPEltName : annotatedTPEltNames) {
       Optional<? extends Element> tPElement = tPEltName.getElement(eltUtils);
@@ -485,15 +503,18 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
       TYPE_NAME,
     }
 
+
     private final Kind kind;
-    /** The fully-qualified name of the element. */
+    /**
+     * The fully-qualified name of the element.
+     */
     private final String name;
 
-    private TPEltName(@NonNull Kind kind, Name name) {
+    private TPEltName(Kind kind, Name name) {
       this.kind = kind;
       this.name = name.toString();
     }
-
+    
     /**
      * An {@link TPEltName} for an element. If {@code element} is a package, it uses the
      * fully qualified name of the package. If it's a type, it uses its fully qualified name.
@@ -515,7 +536,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
      *
      * @param eltUtils the element utility of type {@link Elements} of the environment
      * @return the {@link Element} whose fully-qualified name is {@link #getName()}. {@link Optional#empty() Empty Optional}
-     *    if the relevant method on {@link Elements} returns {@code null}.
+     * if the relevant method on {@link Elements} returns {@code null}.
      */
     Optional<? extends Element> getElement(Elements eltUtils) {
       return Optional.ofNullable(

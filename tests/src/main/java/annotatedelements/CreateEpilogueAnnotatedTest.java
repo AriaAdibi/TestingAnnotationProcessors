@@ -3,6 +3,10 @@ package annotatedelements;
 import customannotations.CreateEpilogue;
 import epilogues.TheEpilogue;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 //https://lingojam.com/EnglishtoShakespearean was used for translation to Middle English.
 
 //@CreateEpilogue
@@ -20,6 +24,13 @@ public class CreateEpilogueAnnotatedTest {
   public static void main(String[] args) {
     System.out.println("The lett'r of a yonge structureth... \n");
     TheEpilogue.printEpilogue();
+
+    ArrayList A = new ArrayList();
+    LinkedList B = new LinkedList();
+    System.err.println( (A instanceof List) + ", " + (B instanceof List) );
+    System.err.println( int[].class.getCanonicalName() );
+    ArrayList[] C = new ArrayList[5];
+    System.err.println( (C instanceof List[]) );
   }
 
 }

@@ -1,11 +1,11 @@
 package processors;
 
 import baseprocessors.BaseAnnotationProcessor;
-import baseprocessors.MoreElements;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
+import utils.MoreElements;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;

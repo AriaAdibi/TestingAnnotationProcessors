@@ -1,5 +1,7 @@
 package baseprocessors;
 
+import utils.MoreTypes;
+
 import javax.lang.model.element.*;
 import javax.lang.model.type.*;
 import javax.lang.model.util.AbstractElementVisitor9;
@@ -15,7 +17,8 @@ import java.util.stream.StreamSupport;
  */
 public final class SuperficialValidation {
 
-  private SuperficialValidation(){}
+  private SuperficialValidation() {
+  }
 
   /* ********************************************************************* */
   /* Element Validators ************************************************** */
@@ -54,18 +57,18 @@ public final class SuperficialValidation {
               && validateElements(e.getEnclosedElements());
         }
 
-        @Override public Boolean visitModule(ModuleElement t, Void unused) {
-          return visitUnknown(t, unused); //Ignore Modules
+        @Override public Boolean visitModule(ModuleElement t, Void ignore) {
+          return visitUnknown(t, ignore); //Ignore Modules
         } //TODO
 
         @Override
-        public Boolean visitPackage(PackageElement e, Void p) {
+        public Boolean visitPackage(PackageElement e, Void ignore) {
           // does not validate enclosed elements because it will return types in the package
           return validateAnnotations(e.getAnnotationMirrors());
         }
 
         @Override
-        public Boolean visitType(TypeElement e, Void p) {
+        public Boolean visitType(TypeElement e, Void ignore) {
           return isValidBaseElement(e)
               && validateElements(e.getTypeParameters())
               && validateTypes(e.getInterfaces())
@@ -73,12 +76,12 @@ public final class SuperficialValidation {
         }
 
         @Override
-        public Boolean visitVariable(VariableElement e, Void p) {
+        public Boolean visitVariable(VariableElement e, Void ignore) {
           return isValidBaseElement(e);
         }
 
         @Override
-        public Boolean visitExecutable(ExecutableElement e, Void p) {
+        public Boolean visitExecutable(ExecutableElement e, Void ignore) {
           AnnotationValue defaultValue = e.getDefaultValue();
           return isValidBaseElement(e)
               && (defaultValue == null || validateAnnotationValue(defaultValue, e.getReturnType()))
@@ -89,12 +92,12 @@ public final class SuperficialValidation {
         }
 
         @Override
-        public Boolean visitTypeParameter(TypeParameterElement e, Void p) {
+        public Boolean visitTypeParameter(TypeParameterElement e, Void ignore) {
           return isValidBaseElement(e) && validateTypes(e.getBounds());
         }
 
         @Override
-        public Boolean visitUnknown(Element e, Void p) {
+        public Boolean visitUnknown(Element e, Void ignore) {
           // just assume that unknown elements are OK
           return true;
         }
@@ -138,33 +141,33 @@ public final class SuperficialValidation {
   private static final TypeVisitor<Boolean, Void> TYPE_VALIDATING_VISITOR =
       new SimpleTypeVisitor9<>() {
         @Override
-        protected Boolean defaultAction(TypeMirror t, Void p) {
+        protected Boolean defaultAction(TypeMirror t, Void ignore) {
           return true;
         }
 
         @Override
-        public Boolean visitArray(ArrayType t, Void p) {
+        public Boolean visitArray(ArrayType t, Void ignore) {
           return validateType(t.getComponentType());
         }
 
         @Override
-        public Boolean visitDeclared(DeclaredType t, Void p) {
+        public Boolean visitDeclared(DeclaredType t, Void ignore) {
           return validateTypes(t.getTypeArguments());
         }
 
         @Override
-        public Boolean visitError(ErrorType t, Void p) {
+        public Boolean visitError(ErrorType t, Void ignore) {
           return false;
         }
 
         @Override
-        public Boolean visitUnknown(TypeMirror t, Void p) {
+        public Boolean visitUnknown(TypeMirror t, Void ignore) {
           // just make the default choice for unknown types
-          return defaultAction(t, p);
+          return defaultAction(t, ignore);
         }
 
         @Override
-        public Boolean visitWildcard(WildcardType t, Void p) {
+        public Boolean visitWildcard(WildcardType t, Void ignored) {
           TypeMirror extendsBound = t.getExtendsBound();
           TypeMirror superBound = t.getSuperBound();
           return (extendsBound == null || validateType(extendsBound))
@@ -172,7 +175,7 @@ public final class SuperficialValidation {
         }
 
         @Override
-        public Boolean visitExecutable(ExecutableType t, Void p) {
+        public Boolean visitExecutable(ExecutableType t, Void ignored) {
           return validateTypes(t.getParameterTypes())
               && validateType(t.getReturnType())
               && validateTypes(t.getThrownTypes())
@@ -218,7 +221,7 @@ public final class SuperficialValidation {
               TypeMirror expectedType = valueEntry.getKey().getReturnType();
               return validateAnnotationValue(valueEntry.getValue(), expectedType);
             }
-            );
+        );
   }
 
   private static boolean validateAnnotationValue(AnnotationValue annotationValue, TypeMirror expectedType) {
@@ -229,7 +232,7 @@ public final class SuperficialValidation {
       new SimpleAnnotationValueVisitor9<>() {
         @Override
         protected Boolean defaultAction(Object o, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(o.getClass(), expectedType); //TODO since we know it is AnnotationValue not better to just do getValue()?? WHY NOT USE TYPEELEMENT INSTEAD
+          return MoreTypes.isExactTypeOf(o.getClass(), expectedType);
         }
 
         @Override
@@ -270,42 +273,42 @@ public final class SuperficialValidation {
 
         @Override
         public Boolean visitBoolean(boolean b, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Boolean.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Boolean.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitByte(byte b, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Byte.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Byte.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitChar(char c, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Character.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Character.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitDouble(double d, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Double.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Double.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitFloat(float f, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Float.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Float.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitInt(int i, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Integer.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Integer.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitLong(long l, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Long.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Long.TYPE, expectedType);
         }
 
         @Override
         public Boolean visitShort(short s, TypeMirror expectedType) {
-          return MoreTypes.isTypeOf(Short.TYPE, expectedType);
+          return MoreTypes.isExactTypeOf(Short.TYPE, expectedType);
         }
       };
 

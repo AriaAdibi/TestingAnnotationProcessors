@@ -1,9 +1,9 @@
-package baseprocessors;
+package utils;
 
 import com.google.common.base.Equivalence;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import lombok.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -22,17 +22,21 @@ import java.util.Set;
  */
 public final class MoreTypes {
 
-  private MoreTypes(){}
+  private MoreTypes() {
+  }
+
+  /* ********************************************************************* */
+  /* Equivalency, similar to Types#isSameType() ************************** */
+  /* ********************************************************************* */
 
   /**
    * Returns an {@link Equivalence} that can be used to compare types. The standard way to compare
-   * types is {@link javax.lang.model.util.Types#isSameType Types.isSameType}, but this alternative
-   * may be preferred in a number of cases:
+   * types is {@link Types#isSameType}, but this alternative may be preferred in a number of cases:
    *
    * <ul>
    *    <li>If you don't have an instance of {@code Types}.
    *    <li>If you want a reliable {@code hashCode()} for the types, for example to construct a set
-   *        of types using {@link java.util.HashSet} with {@link Equivalence#wrap(Object)}.
+   *        of types using {@link HashSet} with {@link Equivalence#wrap(Object)}.
    *    <li>If you want distinct type variables to be considered equal if they have the same names
    *        and bounds.
    *    <li>If you want wildcard types to compare equal if they have the same bounds. {@code
@@ -49,12 +53,12 @@ public final class MoreTypes {
     private static final TypeEquivalence INSTANCE = new TypeEquivalence();
 
     @Override
-    protected boolean doEquivalent(@NonNull TypeMirror a, @NonNull TypeMirror b) {
+    protected boolean doEquivalent(@Nullable TypeMirror a, @Nullable TypeMirror b) {
       return MoreTypes.areEqual(a, b, ImmutableSet.of());
     }
 
     @Override
-    protected int doHash(@SuppressWarnings("NullableProblems") TypeMirror t) {
+    protected int doHash(@Nullable TypeMirror t) {
       return MoreTypes.hash(t, ImmutableSet.of());
     }
 
@@ -75,12 +79,13 @@ public final class MoreTypes {
     return result;
   }
 
-  private static int hash(TypeMirror mirror, Set<Element> visited) {
+  private static int hash(@Nullable TypeMirror mirror, Set<Element> visited) {
     return mirror == null ? 0 : mirror.accept(HashVisitor.INSTANCE, visited);
   }
 
   private static final int HASH_SEED = 17;
   private static final int HASH_MULTIPLIER = 31;
+
 
   private static final class HashVisitor extends SimpleTypeVisitor9<Integer, Set<Element>> {
     private static final HashVisitor INSTANCE = new HashVisitor();
@@ -176,14 +181,14 @@ public final class MoreTypes {
       // We checked that the lists have the same size, so we know that bIterator.hasNext() too.
       TypeMirror nextMirrorA = aIterator.next();
       TypeMirror nextMirrorB = bIterator.next();
-      if ( !areEqual(nextMirrorA, nextMirrorB, visited) )
+      if (!areEqual(nextMirrorA, nextMirrorB, visited))
         return false;
     }
 
     return true;
   }
 
-  private static boolean areEqual(TypeMirror a, TypeMirror b, Set<ComparedElements> visited) {
+  private static boolean areEqual(@Nullable TypeMirror a, @Nullable TypeMirror b, Set<ComparedElements> visited) {
     if (a == b)
       return true;
     if (a == null || b == null)
@@ -199,7 +204,8 @@ public final class MoreTypes {
       return true;
 
     EqualVisitorParam p = new EqualVisitorParam();
-    p.type = b;   p.visited = visited;
+    p.type = b;
+    p.visited = visited;
     return a.accept(EqualVisitor.INSTANCE, p);
   }
 
@@ -224,6 +230,7 @@ public final class MoreTypes {
     Set<ComparedElements> visited;
   }
 
+
   private static class ComparedElements {
     final Element a;
     final ImmutableList<TypeMirror> aArguments;
@@ -233,32 +240,38 @@ public final class MoreTypes {
     ComparedElements(
         Element a, ImmutableList<TypeMirror> aArguments,
         Element b, ImmutableList<TypeMirror> bArguments) {
-      this.a = a; this.aArguments = aArguments;
-      this.b = b; this.bArguments = bArguments;
+      this.a = a;
+      this.aArguments = aArguments;
+      this.b = b;
+      this.bArguments = bArguments;
     }
 
-    protected boolean canEqual(Object o) {
+    protected boolean canEqual(@Nullable Object o) {
       return o instanceof ComparedElements;
     }
 
     @Override
-    public boolean equals(Object o) {
-      if ( !(o instanceof ComparedElements) ) return false;
+    public boolean equals(@Nullable Object o) {
+      if (!(o instanceof ComparedElements))
+        return false;
       ComparedElements that = (ComparedElements) o;
-      if ( !that.canEqual(this) ) return false;
+      if (!that.canEqual(this))
+        return false;
 
       int nArguments = aArguments.size();
-      if ( nArguments != that.aArguments.size() ) return false;
+      if (nArguments != that.aArguments.size())
+        return false;
       // The arguments must be the same size, but we check anyway.
-      if ( nArguments != this.bArguments.size() || nArguments != that.bArguments.size() ) return false;
+      if (nArguments != this.bArguments.size() || nArguments != that.bArguments.size())
+        return false;
 
-      if ( !this.a.equals(that.a) || !this.b.equals(that.b) )
+      if (!this.a.equals(that.a) || !this.b.equals(that.b))
         return false;
 
       for (int i = 0; i < nArguments; i++) {
-        if ( !this.aArguments.get(i).toString().equals( that.aArguments.get(i).toString() ) )
+        if (!this.aArguments.get(i).toString().equals(that.aArguments.get(i).toString()))
           return false;
-        if ( !this.bArguments.get(i).toString().equals( that.bArguments.get(i).toString() ) )
+        if (!this.bArguments.get(i).toString().equals(that.bArguments.get(i).toString()))
           return false;
       }
 
@@ -275,15 +288,15 @@ public final class MoreTypes {
   }
 
   /**
-   * Returns the type of the innermost enclosing instance, or null if there is none. This is the
-   * same as {@link DeclaredType#getEnclosingType()} except that it returns null rather than
-   * NoType for a static type. We need this because of
+   * Returns the type of the innermost enclosing instance, or {@code null} if there is none.
+   * This is the same as {@link DeclaredType#getEnclosingType()} except that it returns
+   * {@code null} rather than {@link NoType} for a static type. We need this because of
    * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=508222">this bug</a> whereby
-   * the Eclipse compiler returns a value for static classes that is not NoType.
+   * the Eclipse compiler returns a value for static classes that is not {@code NoType}.
    */
-  private static TypeMirror enclosingType(DeclaredType t) {
+  private static @Nullable TypeMirror enclosingType(DeclaredType t) {
     TypeMirror enclosing = t.getEnclosingType();
-    if ( enclosing.getKind() == TypeKind.NONE || t.asElement().getModifiers().contains(Modifier.STATIC) )
+    if (enclosing.getKind() == TypeKind.NONE || t.asElement().getModifiers().contains(Modifier.STATIC))
       return null;
 
     return enclosing;
@@ -357,7 +370,7 @@ public final class MoreTypes {
 
     @Override
     public Boolean visitExecutable(ExecutableType a, EqualVisitorParam p) {
-      if ( p.type.getKind() != TypeKind.EXECUTABLE )
+      if (p.type.getKind() != TypeKind.EXECUTABLE)
         return false;
 
       ExecutableType b = (ExecutableType) p.type;
@@ -396,7 +409,7 @@ public final class MoreTypes {
       // represented before and after Java 8. We do have an issue that this code may consider
       // that <T extends Foo & Bar> is different from <T extends Bar & Foo>, but it's very
       // hard to avoid that, and not likely to be much of a problem in practice.
-      return aElement.getSimpleName().equals( bElement.getSimpleName() )
+      return aElement.getSimpleName().equals(bElement.getSimpleName())
           && areEqualLists(aElement.getBounds(), bElement.getBounds(), newVisited)
           && areEqual(a.getLowerBound(), b.getLowerBound(), newVisited);
     }
@@ -423,33 +436,111 @@ public final class MoreTypes {
   /* ********************************************************************* */
 
   /**
-   * Returns {@code true} iff the raw type underlying the given {@link TypeMirror} represents the same raw
-   * type as the given {@link Class} and throws an {@link IllegalArgumentException} if the {@link
-   * TypeMirror} does not represent a type that can be referenced by a {@link Class}
+   * Returns {@code true} iff the raw type underlying the given {@link Class} represents
+   * the raw type of the given {@link TypeMirror} and throws an {@link IllegalArgumentException}
+   * if the {@link TypeMirror} does not represent a type that can be referenced by a
+   * {@link Class}.
    *
-   * @param type the investigated {@linkplain TypeMirror} whose type is being compared with
+   * <p> Note: The representation need not be exact. For example,
+   * {@linkplain java.util.ArrayList} represents {@linkplain  List}.
+   *
+   * @param type  the investigated {@linkplain TypeMirror} whose type is being compared with
    * @param clazz the {@linkplain Class} whose type is being compared to
-   * @return {@code true} iff the underlying raw type of {@code type} and {@code clazz} are the same.
+   * @return {@code true} iff the underlying raw type of {@code type} represents that of {@code clazz}
    * @throws IllegalArgumentException if the {@linkplain TypeMirror} does not represent a type that can be referenced by a {@linkplain  Class}
    */
-  public static boolean isTypeOf(@NonNull final Class<?> clazz, TypeMirror type) {
-    return type.accept(new IsTypeOf(clazz), null);
-  } //TODO Why not send the class as argument
+  public static boolean isTypeOf(final Class<?> clazz, TypeMirror type) {
+    return type.accept(new isTypeOf(clazz), null);
+  }
 
-  private static final class IsTypeOf extends SimpleTypeVisitor9<Boolean, Void> {
-    private final Class<?> clazz; //TODO Why class, why not typeMirror
+  private static final class isTypeOf extends SimpleTypeVisitor9<Boolean, Void> {
+    private final Class<?> clazz;
 
-    IsTypeOf(Class<?> clazz) {
+    isTypeOf(Class<?> clazz) {
       this.clazz = clazz;
     }
 
     @Override
-    protected Boolean defaultAction(TypeMirror type, Void ignored) {
+    protected Boolean defaultAction(TypeMirror type, Void ignore) {
+      return isExactTypeOf(clazz, type);
+    }
+
+    @Override
+    public Boolean visitArray(ArrayType array, Void ignore) {
+      return clazz.isArray() && isTypeOf(clazz.getComponentType(), array.getComponentType());
+    }
+
+    @Override
+    public Boolean visitDeclared(DeclaredType type, Void ignore) {
+      return isDeclaredTypeOf(clazz, type);
+    }
+
+    @Override
+    public Boolean visitTypeVariable(TypeVariable type, Void ignore) {
+      TypeMirror upperBoundType = type.getUpperBound();
+      if (!(upperBoundType instanceof IntersectionType))
+        return isTypeOf(clazz, upperBoundType);
+
+      List<? extends TypeMirror> upperBoundsTypes = ((IntersectionType) upperBoundType).getBounds();
+      for (TypeMirror UBType : upperBoundsTypes)
+        if (isTypeOf(clazz, UBType))
+          return true;
+
+      return false;
+    }
+
+    @Override
+    public Boolean visitWildcard(WildcardType type, Void ignore) {
+      TypeMirror upperBoundType = type.getExtendsBound();
+      return (upperBoundType == null && clazz.equals(Object.class)) ||
+          (upperBoundType != null && isTypeOf(clazz, upperBoundType));
+    }
+
+  }
+
+  private static boolean isDeclaredTypeOf(final Class<?> clazz, DeclaredType declaredType) {
+    if (isExactTypeOf(clazz, declaredType))
+      return true;
+
+    TypeElement typeElement = MoreElements.asTypeElement(declaredType.asElement());
+
+    for (TypeMirror i : typeElement.getInterfaces())
+      if (isDeclaredTypeOf(clazz, MoreTypes.asDeclared(i)))
+        return true;
+
+    // For interface and java.lang.Object, NoType with kind NONE is returned
+    TypeMirror superClassType = typeElement.getSuperclass();
+    return (superClassType.getKind() != TypeKind.NONE) && isDeclaredTypeOf(clazz, MoreTypes.asDeclared(superClassType));
+  }
+
+  /**
+   * Returns {@code true} iff the raw type underlying the given {@link TypeMirror} represents the same raw
+   * type as the given {@link Class} and throws an {@link IllegalArgumentException} if the {@link
+   * TypeMirror} does not represent a type that can be referenced by a {@link Class}
+   *
+   * @param type  the investigated {@linkplain TypeMirror} whose type is being compared with
+   * @param clazz the {@linkplain Class} whose type is being compared to
+   * @return {@code true} iff the underlying raw type of {@code type} and {@code clazz} are the same.
+   * @throws IllegalArgumentException if the {@linkplain TypeMirror} does not represent a type that can be referenced by a {@linkplain  Class}
+   */
+  public static boolean isExactTypeOf(final Class<?> clazz, TypeMirror type) {
+    return type.accept(new isExactTypeOf(clazz), null);
+  }
+
+  private static final class isExactTypeOf extends SimpleTypeVisitor9<Boolean, Void> {
+    private final Class<?> clazz;
+
+    isExactTypeOf(Class<?> clazz) {
+      this.clazz = clazz;
+    }
+
+    @Override
+    protected Boolean defaultAction(TypeMirror type, Void ignore) {
       throw new IllegalArgumentException(type + " cannot be represented as a Class<?>.");
     }
 
     @Override
-    public Boolean visitNoType(NoType noType, Void p) {
+    public Boolean visitNoType(NoType noType, Void ignore) {
       if (noType.getKind() == TypeKind.VOID)
         return clazz.equals(Void.TYPE);
 
@@ -457,12 +548,12 @@ public final class MoreTypes {
     }
 
     @Override
-    public Boolean visitError(ErrorType errorType, Void p) {
+    public Boolean visitError(ErrorType errorType, Void ignore) {
       return false;
     }
 
     @Override
-    public Boolean visitPrimitive(PrimitiveType type, Void p) {
+    public Boolean visitPrimitive(PrimitiveType type, Void ignore) {
       switch (type.getKind()) {
         case BOOLEAN:
           return clazz.equals(Boolean.TYPE);
@@ -486,12 +577,12 @@ public final class MoreTypes {
     }
 
     @Override
-    public Boolean visitArray(ArrayType array, Void p) {
-      return clazz.isArray() && isTypeOf(clazz.getComponentType(), array.getComponentType());
+    public Boolean visitArray(ArrayType array, Void ignore) {
+      return clazz.isArray() && isExactTypeOf(clazz.getComponentType(), array.getComponentType());
     }
 
     @Override
-    public Boolean visitDeclared(DeclaredType type, Void ignored) {
+    public Boolean visitDeclared(DeclaredType type, Void ignore) {
       TypeElement typeElement = MoreElements.asTypeElement(type.asElement());
       return typeElement.getQualifiedName().contentEquals(clazz.getCanonicalName());
     }
@@ -500,9 +591,9 @@ public final class MoreTypes {
   /* Used only in testing */
 
   /**
-   * Returns {@code true} iff the raw type underlying the given {@link TypeMirror} represents a type that can
-   * be referenced by a {@link Class}. If this returns true, then {@link #isTypeOf} is guaranteed to
-   * not throw.
+   * Returns {@code true} iff the raw type underlying the given {@link TypeMirror} represents
+   * a type that can be referenced by a {@link Class}. If this returns true, then
+   * {@link #isExactTypeOf} is guaranteed to not throw.
    *
    * @param type the investigated {@linkplain TypeMirror}
    * @return {@code true} iff the raw type underlying the given {@linkplain TypeMirror} represents a type that can
@@ -516,27 +607,27 @@ public final class MoreTypes {
     private static final IsClassTypeVisitor INSTANCE = new IsClassTypeVisitor();
 
     @Override
-    protected Boolean defaultAction(TypeMirror type, Void ignored) {
+    protected Boolean defaultAction(TypeMirror type, Void ignore) {
       return false;
     }
 
     @Override
-    public Boolean visitNoType(NoType noType, Void p) {
+    public Boolean visitNoType(NoType noType, Void ignore) {
       return noType.getKind() == TypeKind.VOID;
     }
 
     @Override
-    public Boolean visitPrimitive(PrimitiveType type, Void p) {
+    public Boolean visitPrimitive(PrimitiveType type, Void ignore) {
       return true;
     }
 
     @Override
-    public Boolean visitArray(ArrayType array, Void p) {
+    public Boolean visitArray(ArrayType array, Void ignore) {
       return true;
     }
 
     @Override
-    public Boolean visitDeclared(DeclaredType type, Void ignored) {
+    public Boolean visitDeclared(DeclaredType type, Void ignore) {
       return MoreElements.isTypeElement(type.asElement());
     }
 
@@ -549,7 +640,7 @@ public final class MoreTypes {
    * @param type the investigated {@linkplain TypeMirror}
    * @return the set of {@linkplain TypeElement types} that are referenced by the given {@linkplain TypeMirror}
    */
-  public static ImmutableSet<TypeElement> referencedTypeElements(@NonNull TypeMirror type) {
+  public static ImmutableSet<TypeElement> referencedTypeElements(TypeMirror type) {
     ImmutableSet.Builder<TypeElement> elements = ImmutableSet.builder();
     type.accept(ReferencedTypeElementsVisitor.INSTANCE, elements);
     return elements.build();
@@ -560,13 +651,13 @@ public final class MoreTypes {
     private static final ReferencedTypeElementsVisitor INSTANCE = new ReferencedTypeElementsVisitor();
 
     @Override
-    public Void visitArray(ArrayType t, ImmutableSet.Builder<TypeElement> p) {
+    public @Nullable Void visitArray(ArrayType t, ImmutableSet.Builder<TypeElement> p) {
       t.getComponentType().accept(this, p);
       return null;
     }
 
     @Override
-    public Void visitDeclared(DeclaredType t, ImmutableSet.Builder<TypeElement> p) {
+    public @Nullable Void visitDeclared(DeclaredType t, ImmutableSet.Builder<TypeElement> p) {
       p.add(MoreElements.asTypeElement(t.asElement()));
       for (TypeMirror typeArgument : t.getTypeArguments()) {
         typeArgument.accept(this, p);
@@ -575,14 +666,14 @@ public final class MoreTypes {
     }
 
     @Override
-    public Void visitTypeVariable(TypeVariable t, ImmutableSet.Builder<TypeElement> p) {
+    public @Nullable Void visitTypeVariable(TypeVariable t, ImmutableSet.Builder<TypeElement> p) {
       t.getLowerBound().accept(this, p);
       t.getUpperBound().accept(this, p);
       return null;
     }
 
     @Override
-    public Void visitWildcard(WildcardType t, ImmutableSet.Builder<TypeElement> p) {
+    public @Nullable Void visitWildcard(WildcardType t, ImmutableSet.Builder<TypeElement> p) {
       TypeMirror extendsBound = t.getExtendsBound();
       if (extendsBound != null) {
         extendsBound.accept(this, p);
@@ -605,8 +696,8 @@ public final class MoreTypes {
    * Returns a {@link PrimitiveType} if the {@link TypeMirror} represents a primitive type or throws
    * an {@link IllegalArgumentException}.
    *
-   * @param maybePrimitiveType the {@linkplain TypeMirror} to be casted to {@linkplain PrimitiveType}
-   * @return the casted {@linkplain PrimitiveType} iff the {@link TypeMirror} represents a primitive type
+   * @param maybePrimitiveType the {@linkplain TypeMirror} to be cast to {@linkplain PrimitiveType}
+   * @return the {@linkplain PrimitiveType} iff the {@link TypeMirror} represents a primitive type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a primitive type
    */
   @SuppressWarnings("unused")
@@ -618,8 +709,8 @@ public final class MoreTypes {
    * Returns a {@link ArrayType} if the {@link TypeMirror} represents an array or throws an {@link
    * IllegalArgumentException}.
    *
-   * @param maybeArrayType the {@linkplain TypeMirror} to be casted to {@linkplain ArrayType}
-   * @return the casted {@linkplain ArrayType} iff the {@link TypeMirror} represents an array
+   * @param maybeArrayType the {@linkplain TypeMirror} to be cast to {@linkplain ArrayType}
+   * @return the {@linkplain ArrayType} iff the {@link TypeMirror} represents an array
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an array
    */
   public static ArrayType asArray(TypeMirror maybeArrayType) {
@@ -630,8 +721,8 @@ public final class MoreTypes {
    * Returns a {@link DeclaredType} if the {@link TypeMirror} represents a declared type such as a
    * class, interface, union/compound, or enum or throws an {@link IllegalArgumentException}.
    *
-   * @param maybeDeclaredType the {@linkplain TypeMirror} to be casted to {@linkplain DeclaredType}
-   * @return the casted {@linkplain DeclaredType} iff the {@link TypeMirror} represents a declared type
+   * @param maybeDeclaredType the {@linkplain TypeMirror} to be cast to {@linkplain DeclaredType}
+   * @return the {@linkplain DeclaredType} iff the {@link TypeMirror} represents a declared type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a declared type
    */
   @SuppressWarnings("unused")
@@ -643,8 +734,8 @@ public final class MoreTypes {
    * Returns a {@link ExecutableType} if the {@link TypeMirror} represents an executable type such
    * as a method, constructor, or initializer or throws an {@link IllegalArgumentException}.
    *
-   * @param maybeExecutableType the {@linkplain TypeMirror} to be casted to {@linkplain ExecutableType}
-   * @return the casted {@linkplain ExecutableType} iff the {@link TypeMirror} represents an executable type
+   * @param maybeExecutableType the {@linkplain TypeMirror} to be cast to {@linkplain ExecutableType}
+   * @return the {@linkplain ExecutableType} iff the {@link TypeMirror} represents an executable type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an executable type
    */
   @SuppressWarnings("unused")
@@ -656,8 +747,8 @@ public final class MoreTypes {
    * Returns an {@link IntersectionType} if the {@link TypeMirror} represents an intersection-type
    * or throws an {@link IllegalArgumentException}.
    *
-   * @param maybeIntersectionType the {@linkplain TypeMirror} to be casted to {@linkplain IntersectionType}
-   * @return the casted {@linkplain IntersectionType} iff the {@link TypeMirror} represents an intersection-type
+   * @param maybeIntersectionType the {@linkplain TypeMirror} to be cast to {@linkplain IntersectionType}
+   * @return the {@linkplain IntersectionType} iff the {@link TypeMirror} represents an intersection-type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an intersection-type
    */
   @SuppressWarnings("unused")
@@ -669,8 +760,8 @@ public final class MoreTypes {
    * Returns a {@link NoType} if the {@link TypeMirror} represents a non-type such as void, or
    * package, etc. or throws an {@link IllegalArgumentException}.
    *
-   * @param maybeNoType the {@linkplain TypeMirror} to be casted to {@linkplain NoType}
-   * @return the casted {@linkplain NoType} iff the {@link TypeMirror} represents a non-type
+   * @param maybeNoType the {@linkplain TypeMirror} to be cast to {@linkplain NoType}
+   * @return the {@linkplain NoType} iff the {@link TypeMirror} represents a non-type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a non-type
    */
   @SuppressWarnings("unused")
@@ -682,8 +773,8 @@ public final class MoreTypes {
    * Returns a {@link NullType} if the {@link TypeMirror} represents the null type or throws an
    * {@link IllegalArgumentException}.
    *
-   * @param maybeNullType the {@linkplain TypeMirror} to be casted to {@linkplain NullType}
-   * @return the casted {@linkplain NullType} iff the {@link TypeMirror} represents the null type
+   * @param maybeNullType the {@linkplain TypeMirror} to be cast to {@linkplain NullType}
+   * @return the {@linkplain NullType} iff the {@link TypeMirror} represents the null type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent the null type
    */
   @SuppressWarnings("unused")
@@ -699,8 +790,8 @@ public final class MoreTypes {
    * Returns a {@link TypeVariable} if the {@link TypeMirror} represents a type variable or throws
    * an {@link IllegalArgumentException}.
    *
-   * @param maybeTypeVariable the {@linkplain TypeMirror} to be casted to {@linkplain TypeVariable}
-   * @return the casted {@linkplain TypeVariable} iff the {@link TypeMirror} represents a type variable
+   * @param maybeTypeVariable the {@linkplain TypeMirror} to be cast to {@linkplain TypeVariable}
+   * @return the {@linkplain TypeVariable} iff the {@link TypeMirror} represents a type variable
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a type variable
    */
   @SuppressWarnings("unused")
@@ -712,8 +803,8 @@ public final class MoreTypes {
    * Returns a {@link WildcardType} if the {@link TypeMirror} represents a wildcard type or throws
    * an {@link IllegalArgumentException}.
    *
-   * @param maybeWildcardType the {@linkplain TypeMirror} to be casted to {@linkplain WildcardType}
-   * @return the casted {@linkplain WildcardType} iff the {@link TypeMirror} represents a wildcard type
+   * @param maybeWildcardType the {@linkplain TypeMirror} to be cast to {@linkplain WildcardType}
+   * @return the {@linkplain WildcardType} iff the {@link TypeMirror} represents a wildcard type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent a wildcard type
    */
   @SuppressWarnings("unused")
@@ -725,8 +816,8 @@ public final class MoreTypes {
    * Returns a {@link ErrorType} if the {@link TypeMirror} represents an error type such
    * as may result from missing code, or bad compiles or throws an {@link IllegalArgumentException}.
    *
-   * @param maybeErrorType the {@linkplain TypeMirror} to be casted to {@linkplain ErrorType}
-   * @return the casted {@linkplain ErrorType} iff the {@link TypeMirror} represents an error type
+   * @param maybeErrorType the {@linkplain TypeMirror} to be cast to {@linkplain ErrorType}
+   * @return the {@linkplain ErrorType} iff the {@link TypeMirror} represents an error type
    * @throws IllegalArgumentException if the {@link TypeMirror} does not represent an error type
    */
   @SuppressWarnings("unused")
@@ -742,10 +833,11 @@ public final class MoreTypes {
     }
 
     @Override
-    protected T defaultAction(TypeMirror e, Void v) {
+    protected T defaultAction(TypeMirror e, Void ignore) {
       throw new IllegalArgumentException(e + " does not represent a " + label);
     }
   }
+
 
   private static final class CastingToPrimitiveTypeVisitor extends CastingTypeVisitor<PrimitiveType> {
     private static final CastingToPrimitiveTypeVisitor INSTANCE = new CastingToPrimitiveTypeVisitor();
@@ -760,6 +852,7 @@ public final class MoreTypes {
     }
   }
 
+
   private static final class CastingToArrayTypeVisitor extends CastingTypeVisitor<ArrayType> {
     private static final CastingToArrayTypeVisitor INSTANCE = new CastingToArrayTypeVisitor();
 
@@ -772,6 +865,7 @@ public final class MoreTypes {
       return type;
     }
   }
+
 
   private static final class CastingToDeclaredTypeVisitor extends CastingTypeVisitor<DeclaredType> {
     private static final CastingToDeclaredTypeVisitor INSTANCE = new CastingToDeclaredTypeVisitor();
@@ -786,6 +880,7 @@ public final class MoreTypes {
     }
   }
 
+
   private static final class CastingToExecutableTypeVisitor extends CastingTypeVisitor<ExecutableType> {
     private static final CastingToExecutableTypeVisitor INSTANCE = new CastingToExecutableTypeVisitor();
 
@@ -798,6 +893,7 @@ public final class MoreTypes {
       return type;
     }
   }
+
 
   private static final class CastingToIntersectionTypeVisitor extends CastingTypeVisitor<IntersectionType> {
     private static final CastingToIntersectionTypeVisitor INSTANCE = new CastingToIntersectionTypeVisitor();
@@ -812,6 +908,7 @@ public final class MoreTypes {
     }
   }
 
+
   private static final class CastingToNoTypeVisitor extends CastingTypeVisitor<NoType> {
     private static final CastingToNoTypeVisitor INSTANCE = new CastingToNoTypeVisitor();
 
@@ -824,6 +921,7 @@ public final class MoreTypes {
       return type;
     }
   }
+
 
   private static final class CastingToNullTypeVisitor extends CastingTypeVisitor<NullType> {
     private static final CastingToNullTypeVisitor INSTANCE = new CastingToNullTypeVisitor();
@@ -838,6 +936,7 @@ public final class MoreTypes {
     }
   }
 
+
   private static final class CastingToTypeVariableVisitor extends CastingTypeVisitor<TypeVariable> {
     private static final CastingToTypeVariableVisitor INSTANCE = new CastingToTypeVariableVisitor();
 
@@ -851,6 +950,7 @@ public final class MoreTypes {
     }
   }
 
+
   private static final class CastingToWildcardTypeVisitor extends CastingTypeVisitor<WildcardType> {
     private static final CastingToWildcardTypeVisitor INSTANCE = new CastingToWildcardTypeVisitor();
 
@@ -863,6 +963,7 @@ public final class MoreTypes {
       return type;
     }
   }
+
 
   private static final class CastingToErrorTypeVisitor extends CastingTypeVisitor<ErrorType> {
     private static final CastingToErrorTypeVisitor INSTANCE = new CastingToErrorTypeVisitor();
@@ -886,7 +987,7 @@ public final class MoreTypes {
    *
    * @param typeMirror the type to map to an element
    * @return the element corresponding to the given type
-   * @throws NullPointerException if {@code typeMirror} is {@code null}
+   * @throws NullPointerException     if {@code typeMirror} is {@code null}
    * @throws IllegalArgumentException if {@code typeMirror} cannot be converted to an {@link Element}
    */
   public static Element asElement(TypeMirror typeMirror) {
@@ -897,22 +998,22 @@ public final class MoreTypes {
     private static final AsElementVisitor INSTANCE = new AsElementVisitor();
 
     @Override
-    protected Element defaultAction(TypeMirror e, Void p) {
+    protected Element defaultAction(TypeMirror e, Void ignore) {
       throw new IllegalArgumentException(e + " cannot be converted to an Element");
     }
 
     @Override
-    public Element visitDeclared(DeclaredType t, Void p) {
+    public Element visitDeclared(DeclaredType t, Void ignore) {
       return t.asElement();
     }
 
     @Override
-    public Element visitError(ErrorType t, Void p) {
+    public Element visitError(ErrorType t, Void ignore) {
       return t.asElement();
     }
 
     @Override
-    public Element visitTypeVariable(TypeVariable t, Void p) {
+    public Element visitTypeVariable(TypeVariable t, Void ignore) {
       return t.asElement();
     }
   }
