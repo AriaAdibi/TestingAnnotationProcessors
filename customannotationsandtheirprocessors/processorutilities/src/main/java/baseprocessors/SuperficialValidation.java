@@ -243,7 +243,7 @@ public final class SuperficialValidation {
 
         @Override
         public Boolean visitAnnotation(AnnotationMirror a, TypeMirror expectedType) {
-          return MoreTypes.getTypeEquivalence().equivalent(a.getAnnotationType(), expectedType)
+          return MoreTypes.equivalence().equivalent(a.getAnnotationType(), expectedType)
               && validateAnnotation(a);
         }
 
@@ -258,7 +258,7 @@ public final class SuperficialValidation {
 
         @Override
         public Boolean visitEnumConstant(VariableElement enumConstant, TypeMirror expectedType) {
-          return MoreTypes.getTypeEquivalence().equivalent(enumConstant.asType(), expectedType)
+          return MoreTypes.equivalence().equivalent(enumConstant.asType(), expectedType)
               && validateElement(enumConstant);
         }
 

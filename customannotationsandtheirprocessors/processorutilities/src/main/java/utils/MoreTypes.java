@@ -45,7 +45,7 @@ public final class MoreTypes {
    *
    * @return an {@link Equivalence} that can be used to compare types.
    */
-  public static Equivalence<TypeMirror> getTypeEquivalence() {
+  public static Equivalence<TypeMirror> equivalence() {
     return TypeEquivalence.INSTANCE;
   }
 
