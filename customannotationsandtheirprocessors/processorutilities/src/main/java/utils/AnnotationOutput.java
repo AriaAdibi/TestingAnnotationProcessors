@@ -6,19 +6,44 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.SimpleAnnotationValueVisitor8;
+import javax.lang.model.util.SimpleAnnotationValueVisitor9;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Handling of default values for annotation members.
- *
- * @author emcmanus@google.com (Éamonn McManus)
  */
 final class AnnotationOutput {
+
   private AnnotationOutput() {
   } // There are no instances of this class.
+
+  /**
+   * Returns a string representation of the given annotation value, suitable for inclusion in a Java
+   * source file as the initializer of a variable of the appropriate type.
+   *
+   * @param annotationValue the {@linkplain AnnotationValue} to be represented
+   * @return a string representation of the {@code annotationValue}
+   */
+  static String toString(AnnotationValue annotationValue) {
+    StringBuilder sb = new StringBuilder();
+    new SourceFormVisitor().visit(annotationValue, sb);
+    return sb.toString();
+  }
+
+  /**
+   * Returns a string representation of the given annotation mirror, suitable for inclusion in a
+   * Java source file to reproduce the annotation in source form.
+   *
+   * @param annotationMirror the {@linkplain AnnotationMirror} to be represented
+   * @return a string representation of the {@code annotationMirror}
+   */
+  static String toString(AnnotationMirror annotationMirror) {
+    StringBuilder sb = new StringBuilder();
+    new SourceFormVisitor().visitAnnotation(annotationMirror, sb);
+    return sb.toString();
+  }
 
   /**
    * Visitor that produces a string representation of an annotation value, suitable for inclusion in
@@ -29,8 +54,7 @@ final class AnnotationOutput {
    * example the construction of an {@code @AutoAnnotation} class. That's why we have this abstract
    * class and two concrete subclasses.
    */
-  private static class SourceFormVisitor
-      extends SimpleAnnotationValueVisitor8<@Nullable Void, StringBuilder> {
+  private static class SourceFormVisitor extends SimpleAnnotationValueVisitor9<@Nullable Void, StringBuilder> {
 
     private String formatType(TypeMirror typeMirror) {
       return MoreElements.asTypeElement(MoreTypes.asElement(typeMirror)).getQualifiedName().toString();
@@ -132,15 +156,15 @@ final class AnnotationOutput {
           ImmutableMap.copyOf(a.getElementValues());
       if (!map.isEmpty()) {
         sb.append('(');
-        Optional<AnnotationValue> shortForm = shortForm(map);
+        Optional<AnnotationValue> shortForm = shortFormForOnlyValueMember(map);
         if (shortForm.isPresent()) {
-          this.visit(maybeShorten(shortForm.get()), sb);
+          this.visit(shortenArray(shortForm.get()), sb);
         } else {
           String sep = "";
           for (Map.Entry<ExecutableElement, AnnotationValue> entry : map.entrySet()) {
             sb.append(sep).append(entry.getKey().getSimpleName()).append(" = ");
             sep = ", ";
-            this.visit(maybeShorten(entry.getValue()), sb);
+            this.visit(shortenArray(entry.getValue()), sb);
           }
         }
         sb.append(')');
@@ -149,72 +173,20 @@ final class AnnotationOutput {
     }
   }
 
-  private static AnnotationValue maybeShorten(AnnotationValue value) {
-    return ARRAY_VISITOR.visit(value, value);
+  @SuppressWarnings("UnusedReturnValue")
+  private static StringBuilder appendQuoted(StringBuilder sb, char c) {
+    sb.append('\'');
+    appendEscaped(sb, c);
+    return sb.append('\'');
   }
 
-  private static final AnnotationValueVisitor<AnnotationValue, AnnotationValue> ARRAY_VISITOR =
-      new SimpleAnnotationValueVisitor8<AnnotationValue, AnnotationValue>() {
-        @Override
-        public AnnotationValue visitArray(
-            List<? extends AnnotationValue> values, AnnotationValue input) {
-          if (values.size() == 1) {
-            // We can shorten @Foo(a = {23}) to @Foo(a = 23). For the specific case where `a` is
-            // actually `value`, we'll already have shortened that in visitAnnotation, so
-            // effectively we go from @Foo(value = {23}) to @Foo({23}) to @Foo(23).
-            return Iterables.getOnlyElement(values);
-          }
-          return input;
-        }
-
-        @Override
-        protected AnnotationValue defaultAction(Object o, AnnotationValue input) {
-          return input;
-        }
-      };
-
-  // We can shorten @Annot(value = 23) to @Annot(23).
-  private static Optional<AnnotationValue> shortForm(
-      Map<ExecutableElement, AnnotationValue> values) {
-    if (values.size() == 1
-        && Iterables.getOnlyElement(values.keySet()).getSimpleName().contentEquals("value")) {
-      return Optional.of(Iterables.getOnlyElement(values.values()));
-    }
-    return Optional.empty();
-  }
-
-  /**
-   * Returns a string representation of the given annotation value, suitable for inclusion in a Java
-   * source file as the initializer of a variable of the appropriate type.
-   */
-  static String toString(AnnotationValue annotationValue) {
-    StringBuilder sb = new StringBuilder();
-    new SourceFormVisitor().visit(annotationValue, sb);
-    return sb.toString();
-  }
-
-  /**
-   * Returns a string representation of the given annotation mirror, suitable for inclusion in a
-   * Java source file to reproduce the annotation in source form.
-   */
-  static String toString(AnnotationMirror annotationMirror) {
-    StringBuilder sb = new StringBuilder();
-    new SourceFormVisitor().visitAnnotation(annotationMirror, sb);
-    return sb.toString();
-  }
-
+  @SuppressWarnings("UnusedReturnValue")
   private static StringBuilder appendQuoted(StringBuilder sb, String s) {
     sb.append('"');
     for (int i = 0; i < s.length(); i++) {
       appendEscaped(sb, s.charAt(i));
     }
     return sb.append('"');
-  }
-
-  private static StringBuilder appendQuoted(StringBuilder sb, char c) {
-    sb.append('\'');
-    appendEscaped(sb, c);
-    return sb.append('\'');
   }
 
   private static void appendEscaped(StringBuilder sb, char c) {
@@ -244,4 +216,39 @@ final class AnnotationOutput {
         break;
     }
   }
+
+  // We can shorten @Annot(value = 23) to @Annot(23).
+  private static Optional<AnnotationValue> shortFormForOnlyValueMember(
+      Map<ExecutableElement, AnnotationValue> values) {
+    if (values.size() == 1
+        && Iterables.getOnlyElement(values.keySet()).getSimpleName().contentEquals("value")) {
+      return Optional.of(Iterables.getOnlyElement(values.values()));
+    }
+    return Optional.empty();
+  }
+
+  private static AnnotationValue shortenArray(AnnotationValue value) {
+    return ARRAY_VISITOR.visit(value, value);
+  }
+
+  private static final AnnotationValueVisitor<AnnotationValue, AnnotationValue> ARRAY_VISITOR =
+      new SimpleAnnotationValueVisitor9<AnnotationValue, AnnotationValue>() {
+        @Override
+        public AnnotationValue visitArray(
+            List<? extends AnnotationValue> values, AnnotationValue input) {
+          if (values.size() == 1) {
+            // We can shorten @Foo(a = {23}) to @Foo(a = 23). For the specific case where `a` is
+            // actually `value`, we'll already have shortened that in visitAnnotation, so
+            // effectively we go from @Foo(value = {23}) to @Foo({23}) to @Foo(23).
+            return Iterables.getOnlyElement(values);
+          }
+          return input;
+        }
+
+        @Override
+        protected AnnotationValue defaultAction(Object o, AnnotationValue input) {
+          return input;
+        }
+      };
+
 }

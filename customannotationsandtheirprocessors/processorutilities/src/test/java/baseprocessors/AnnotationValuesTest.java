@@ -49,6 +49,7 @@ public final class AnnotationValuesTest {
   }
 
 
+  @SuppressWarnings("unused")
   private static class GenericClass<T> {
   }
 
@@ -117,7 +118,7 @@ public final class AnnotationValuesTest {
   private enum Foo {
     BAR,
     BAZ,
-    BAH;
+    BAH
   }
 
 
@@ -153,49 +154,50 @@ public final class AnnotationValuesTest {
 
   @Rule public final CompilationRule compilation = new CompilationRule();
 
-  private Elements elements;
-  private Types types;
+  private Elements eltUtils;
+  private Types typeUtils;
   private AnnotationMirror annotationMirror;
 
   @Before
   public void setUp() {
-    elements = compilation.getElements();
-    types = compilation.getTypes();
-    TypeElement annotatedClass = getTypeElement(AnnotatedClass.class);
+    eltUtils = compilation.getElements();
+    typeUtils = compilation.getTypes();
+    TypeElement annotatedClass = getTypeElementFor(AnnotatedClass.class);
+    //noinspection OptionalGetWithoutIsPresent
     annotationMirror =
         MoreElements.getAnnotationMirrorOfType(annotatedClass, MultiValueAnnotation.class).get();
   }
 
   @Test
-  public void getTypeMirror() {
-    TypeElement insideClassA = getTypeElement(InsideClassA.class);
+  public void getDeclaredType() {
+    TypeElement insideClassA = getTypeElementFor(InsideClassA.class);
     AnnotationValue value = AnnotationMirrors.getAnnotationValue(annotationMirror, "classValue");
-    assertThat(AnnotationValues.getTypeMirror(value).asElement()).isEqualTo(insideClassA);
+    assertThat(AnnotationValues.getDeclaredType(value).asElement()).isEqualTo(insideClassA);
   }
 
   @Test
-  public void getTypeMirrorGenericClass() {
-    TypeElement genericClass = getTypeElement(GenericClass.class);
+  public void getDeclaredTypeGenericClass() {
+    TypeElement genericClass = getTypeElementFor(GenericClass.class);
     AnnotationValue gvalue =
         AnnotationMirrors.getAnnotationValue(annotationMirror, "genericClassValue");
-    assertThat(AnnotationValues.getTypeMirror(gvalue).asElement()).isEqualTo(genericClass);
+    assertThat(AnnotationValues.getDeclaredType(gvalue).asElement()).isEqualTo(genericClass);
   }
 
   @Test
   public void getTypeMirrors() {
-    TypeMirror insideClassA = getTypeElement(InsideClassA.class).asType();
-    TypeMirror insideClassB = getTypeElement(InsideClassB.class).asType();
+    TypeMirror insideClassA = getTypeElementFor(InsideClassA.class).asType();
+    TypeMirror insideClassB = getTypeElementFor(InsideClassB.class).asType();
     AnnotationValue value = AnnotationMirrors.getAnnotationValue(annotationMirror, "classValues");
-    ImmutableList<DeclaredType> valueElements = AnnotationValues.getTypeMirrors(value);
+    ImmutableList<DeclaredType> valueElements = AnnotationValues.getDeclaredTypes(value);
     assertThat(valueElements)
-        .comparingElementsUsing(Correspondence.from(types::isSameType, "has Same Type"))
+        .comparingElementsUsing(Correspondence.from(typeUtils::isSameType, "has Same Type"))
         .containsExactly(insideClassA, insideClassB)
         .inOrder();
   }
 
   @Test
   public void getAnnotationMirror() {
-    TypeElement insideAnnotation = getTypeElement(InsideAnnotation.class);
+    TypeElement insideAnnotation = getTypeElementFor(InsideAnnotation.class);
     AnnotationValue value =
         AnnotationMirrors.getAnnotationValue(annotationMirror, "insideAnnotationValue");
     AnnotationMirror annotationMirror = AnnotationValues.getAnnotationMirror(value);
@@ -206,7 +208,7 @@ public final class AnnotationValuesTest {
 
   @Test
   public void getAnnotationMirrors() {
-    TypeElement insideAnnotation = getTypeElement(InsideAnnotation.class);
+    TypeElement insideAnnotation = getTypeElementFor(InsideAnnotation.class);
     AnnotationValue value =
         AnnotationMirrors.getAnnotationValue(annotationMirror, "insideAnnotationValues");
     ImmutableList<AnnotationMirror> annotationMirrors =
@@ -418,8 +420,8 @@ public final class AnnotationValuesTest {
                         ")")));
   }
 
-  private TypeElement getTypeElement(Class<?> clazz) {
-    return elements.getTypeElement(clazz.getCanonicalName());
+  private TypeElement getTypeElementFor(Class<?> clazz) {
+    return eltUtils.getTypeElement(clazz.getCanonicalName());
   }
 
   private static ImmutableList<String> getEnumNames(ImmutableList<VariableElement> values) {
