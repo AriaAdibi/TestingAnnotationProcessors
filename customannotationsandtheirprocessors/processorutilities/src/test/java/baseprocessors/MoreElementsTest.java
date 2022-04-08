@@ -1,5 +1,7 @@
 package baseprocessors;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.truth.Correspondence;
 import com.google.common.truth.Expect;
 import com.google.testing.compile.CompilationRule;
 import org.junit.Before;
@@ -8,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import utils.MoreElements;
+import utils.MoreTypes;
 
 import javax.lang.model.element.*;
 import javax.lang.model.util.ElementFilter;
@@ -28,7 +31,7 @@ public class MoreElementsTest {
   @Rule public CompilationRule compilation = new CompilationRule();
   @Rule public Expect expect = Expect.create();
 
-  private Elements elements;
+  private Elements eltUtils;
   private PackageElement javaLangPackageElement;
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
   private TypeElement objectElement;
@@ -36,10 +39,10 @@ public class MoreElementsTest {
 
   @Before
   public void initializeTestElements() {
-    this.elements = compilation.getElements();
-    this.javaLangPackageElement = elements.getPackageElement("java.lang");
-    this.objectElement = elements.getTypeElement(Object.class.getCanonicalName());
-    this.stringElement = elements.getTypeElement(String.class.getCanonicalName());
+    this.eltUtils = compilation.getElements();
+    this.javaLangPackageElement = eltUtils.getPackageElement("java.lang");
+    this.objectElement = eltUtils.getTypeElement(Object.class.getCanonicalName());
+    this.stringElement = eltUtils.getTypeElement(String.class.getCanonicalName());
   }
 
   @Test
@@ -73,14 +76,14 @@ public class MoreElementsTest {
 
   //  @Test
   //  public void asTypeElement() { //TODO unnecessary, replicated with the other one + also add test for isType
-  //    Element typeElement = elements.getTypeElement(String.class.getCanonicalName());
+  //    Element typeElement = eltUtils.getTypeElement(String.class.getCanonicalName());
   //    assertTrue(MoreElements.isTypeElement(typeElement));
   //    assertThat(MoreElements.asTypeElement(typeElement)).isEqualTo(typeElement);
   //  }
 
   @Test
   public void asTypeElement_notATypeElement() { //TODO Unnecessary, at lease modify
-    TypeElement typeElement = elements.getTypeElement(String.class.getCanonicalName());
+    TypeElement typeElement = eltUtils.getTypeElement(String.class.getCanonicalName());
     for (ExecutableElement e : ElementFilter.methodsIn(typeElement.getEnclosedElements())) {
       assertFalse(MoreElements.isTypeElement(e));
       try {
@@ -175,7 +178,7 @@ public class MoreElementsTest {
   @Test
   public void isAnnotationPresent() {
     TypeElement annotatedAnnotationElement =
-        elements.getTypeElement(AnnotatedAnnotation.class.getCanonicalName());
+        eltUtils.getTypeElement(AnnotatedAnnotation.class.getCanonicalName());
 
     // Test Class API
     isAnnotationPresentAsserts(
@@ -193,9 +196,9 @@ public class MoreElementsTest {
         MoreElements.isAnnotationPresent(annotatedAnnotationElement, suppressWarningsName));
 
     // Test TypeElement API
-    TypeElement documentedElement = elements.getTypeElement(documentedName);
-    TypeElement innerAnnotationElement = elements.getTypeElement(innerAnnotationName);
-    TypeElement suppressWarningsElement = elements.getTypeElement(suppressWarningsName);
+    TypeElement documentedElement = eltUtils.getTypeElement(documentedName);
+    TypeElement innerAnnotationElement = eltUtils.getTypeElement(innerAnnotationName);
+    TypeElement suppressWarningsElement = eltUtils.getTypeElement(suppressWarningsName);
     isAnnotationPresentAsserts(
         MoreElements.isAnnotationPresent(annotatedAnnotationElement, documentedElement),
         MoreElements.isAnnotationPresent(annotatedAnnotationElement, innerAnnotationElement),
@@ -214,7 +217,7 @@ public class MoreElementsTest {
   @Test
   public void getAnnotationMirrorOfType() {
     TypeElement element =
-        elements.getTypeElement(AnnotatedAnnotation.class.getCanonicalName());
+        eltUtils.getTypeElement(AnnotatedAnnotation.class.getCanonicalName());
 
     // Test Class API
     getAnnotationMirrorAsserts(
@@ -232,9 +235,9 @@ public class MoreElementsTest {
         MoreElements.getAnnotationMirrorOfType(element, suppressWarningsName));
 
     // Test TypeElement API
-    TypeElement documentedElement = elements.getTypeElement(documentedName);
-    TypeElement innerAnnotationElement = elements.getTypeElement(innerAnnotationName);
-    TypeElement suppressWarningsElement = elements.getTypeElement(suppressWarningsName);
+    TypeElement documentedElement = eltUtils.getTypeElement(documentedName);
+    TypeElement innerAnnotationElement = eltUtils.getTypeElement(innerAnnotationName);
+    TypeElement suppressWarningsElement = eltUtils.getTypeElement(suppressWarningsName);
     getAnnotationMirrorAsserts(
         MoreElements.getAnnotationMirrorOfType(element, documentedElement),
         MoreElements.getAnnotationMirrorOfType(element, innerAnnotationElement),

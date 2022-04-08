@@ -49,7 +49,7 @@ public class MoreElements {
   public static boolean isAnnotationPresent(Element element, Class<? extends Annotation> annotationClass) {
     return getAnnotationMirrorOfType(element, annotationClass).isPresent();
   }
-  
+
   /**
    * Returns {@code true} iff the given element has an {@link AnnotationMirror} whose {@linkplain
    * AnnotationMirror#getAnnotationType() annotation type} has the same fully qualified name as that
@@ -138,7 +138,8 @@ public class MoreElements {
    * safer alternative to calling {@link Element#getAnnotation} as it avoids any interaction with
    * annotation proxies.
    *
-   * @param element         the element whose annotation is inquired
+   * @param <A>             a type of {@linkplain Annotation}
+   * @param element         the {@linkplain Element} whose annotation is inquired
    * @param annotationClass the annotation of interest passed as {@linkplain Class}
    * @return the {@linkplain Optional} of {@linkplain  AnnotationMirror} for the annotation of
    * type {@code annotationClass} on {@code element}, or {@linkplain Optional#empty()} if
@@ -155,14 +156,14 @@ public class MoreElements {
    * alternative to calling {@link Element#getAnnotation} as it avoids any interaction with
    * annotation proxies.
    *
-   * @param element    the element whose annotation mirror is inquired
-   * @param annotation the annotation of interest passed as {@linkplain TypeElement}
+   * @param element           the {@linkplain Element} whose annotation mirror is inquired
+   * @param annotationElement the annotation of interest passed as {@linkplain TypeElement}
    * @return the {@linkplain Optional} of {@linkplain  AnnotationMirror} for the annotation of
    * type {@code annotation} on {@code element}, or {@linkplain Optional#empty()} if
    * no such annotation exists
    */
-  public static Optional<? extends AnnotationMirror> getAnnotationMirrorOfType(Element element, TypeElement annotation) {
-    return getAnnotationMirrorOfType(element, annotation.getQualifiedName().toString());
+  public static Optional<? extends AnnotationMirror> getAnnotationMirrorOfType(Element element, TypeElement annotationElement) {
+    return getAnnotationMirrorOfType(element, annotationElement.getQualifiedName().toString());
   }
 
   /**
@@ -171,7 +172,7 @@ public class MoreElements {
    * if no such annotation exists. This method is a safer alternative to calling
    * {@link Element#getAnnotation} as it avoids any interaction with annotation proxies.
    *
-   * @param element                 the element whose annotation mirror is inquired
+   * @param element                 the {@linkplain Element} whose annotation mirror is inquired
    * @param annotationCanonicalName the canonical name of the annotation of interest
    *                                passed as {@linkplain String}
    * @return the {@linkplain Optional} of {@linkplain  AnnotationMirror} for the annotation

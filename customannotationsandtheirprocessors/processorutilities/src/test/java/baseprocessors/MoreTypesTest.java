@@ -51,40 +51,40 @@ public class MoreTypesTest {
 
   @Test
   public void equivalence() {
-    Types types = compilationRule.getTypes();
-    Elements elements = compilationRule.getElements();
-    TypeMirror objectType = elements.getTypeElement(Object.class.getCanonicalName()).asType();
-    TypeMirror stringType = elements.getTypeElement(String.class.getCanonicalName()).asType();
-    TypeElement mapElement = elements.getTypeElement(Map.class.getCanonicalName());
-    TypeElement setElement = elements.getTypeElement(Set.class.getCanonicalName());
-    TypeElement enumElement = elements.getTypeElement(Enum.class.getCanonicalName());
-    TypeElement container = elements.getTypeElement(Container.class.getCanonicalName());
-    TypeElement contained = elements.getTypeElement(Container.Contained.class.getCanonicalName());
-    TypeElement funkyBounds = elements.getTypeElement(FunkyBounds.class.getCanonicalName());
-    TypeElement funkyBounds2 = elements.getTypeElement(FunkyBounds2.class.getCanonicalName());
-    TypeElement funkierBounds = elements.getTypeElement(FunkierBounds.class.getCanonicalName());
+    Types typeUtils = compilationRule.getTypes();
+    Elements eltUtils = compilationRule.getElements();
+    TypeMirror objectType = eltUtils.getTypeElement(Object.class.getCanonicalName()).asType();
+    TypeMirror stringType = eltUtils.getTypeElement(String.class.getCanonicalName()).asType();
+    TypeElement mapElement = eltUtils.getTypeElement(Map.class.getCanonicalName());
+    TypeElement setElement = eltUtils.getTypeElement(Set.class.getCanonicalName());
+    TypeElement enumElement = eltUtils.getTypeElement(Enum.class.getCanonicalName());
+    TypeElement container = eltUtils.getTypeElement(Container.class.getCanonicalName());
+    TypeElement contained = eltUtils.getTypeElement(Container.Contained.class.getCanonicalName());
+    TypeElement funkyBounds = eltUtils.getTypeElement(FunkyBounds.class.getCanonicalName());
+    TypeElement funkyBounds2 = eltUtils.getTypeElement(FunkyBounds2.class.getCanonicalName());
+    TypeElement funkierBounds = eltUtils.getTypeElement(FunkierBounds.class.getCanonicalName());
     TypeMirror funkyBoundsVar = ((DeclaredType) funkyBounds.asType()).getTypeArguments().get(0);
     TypeMirror funkyBounds2Var = ((DeclaredType) funkyBounds2.asType()).getTypeArguments().get(0);
     TypeMirror funkierBoundsVar = ((DeclaredType) funkierBounds.asType()).getTypeArguments().get(0);
     DeclaredType mapOfObjectToObjectType =
-        types.getDeclaredType(mapElement, objectType, objectType);
+        typeUtils.getDeclaredType(mapElement, objectType, objectType);
     TypeMirror mapType = mapElement.asType();
     DeclaredType setOfSetOfObject =
-        types.getDeclaredType(setElement, types.getDeclaredType(setElement, objectType));
+        typeUtils.getDeclaredType(setElement, typeUtils.getDeclaredType(setElement, objectType));
     DeclaredType setOfSetOfString =
-        types.getDeclaredType(setElement, types.getDeclaredType(setElement, stringType));
-    DeclaredType setOfSetOfSetOfObject = types.getDeclaredType(setElement, setOfSetOfObject);
-    DeclaredType setOfSetOfSetOfString = types.getDeclaredType(setElement, setOfSetOfString);
-    WildcardType wildcard = types.getWildcardType(null, null);
-    DeclaredType containerOfObject = types.getDeclaredType(container, objectType);
-    DeclaredType containerOfString = types.getDeclaredType(container, stringType);
-    TypeMirror containedInObject = types.asMemberOf(containerOfObject, contained);
-    TypeMirror containedInString = types.asMemberOf(containerOfString, contained);
+        typeUtils.getDeclaredType(setElement, typeUtils.getDeclaredType(setElement, stringType));
+    DeclaredType setOfSetOfSetOfObject = typeUtils.getDeclaredType(setElement, setOfSetOfObject);
+    DeclaredType setOfSetOfSetOfString = typeUtils.getDeclaredType(setElement, setOfSetOfString);
+    WildcardType wildcard = typeUtils.getWildcardType(null, null);
+    DeclaredType containerOfObject = typeUtils.getDeclaredType(container, objectType);
+    DeclaredType containerOfString = typeUtils.getDeclaredType(container, stringType);
+    TypeMirror containedInObject = typeUtils.asMemberOf(containerOfObject, contained);
+    TypeMirror containedInString = typeUtils.asMemberOf(containerOfString, contained);
     EquivalenceTester<TypeMirror> tester =
         EquivalenceTester.<TypeMirror>of(MoreTypes.equivalence())
-            .addEquivalenceGroup(types.getNullType())
-            .addEquivalenceGroup(types.getNoType(NONE))
-            .addEquivalenceGroup(types.getNoType(VOID))
+            .addEquivalenceGroup(typeUtils.getNullType())
+            .addEquivalenceGroup(typeUtils.getNoType(NONE))
+            .addEquivalenceGroup(typeUtils.getNoType(VOID))
             .addEquivalenceGroup(objectType)
             .addEquivalenceGroup(stringType)
             .addEquivalenceGroup(containedInObject)
@@ -100,40 +100,40 @@ public class MoreTypesTest {
             .addEquivalenceGroup(mapType)
             .addEquivalenceGroup(mapOfObjectToObjectType)
             // Map<?, ?>
-            .addEquivalenceGroup(types.getDeclaredType(mapElement, wildcard, wildcard))
+            .addEquivalenceGroup(typeUtils.getDeclaredType(mapElement, wildcard, wildcard))
             // Map
-            .addEquivalenceGroup(types.erasure(mapType), types.erasure(mapOfObjectToObjectType))
-            .addEquivalenceGroup(types.getDeclaredType(mapElement, objectType, stringType))
-            .addEquivalenceGroup(types.getDeclaredType(mapElement, stringType, objectType))
-            .addEquivalenceGroup(types.getDeclaredType(mapElement, stringType, stringType))
+            .addEquivalenceGroup(typeUtils.erasure(mapType), typeUtils.erasure(mapOfObjectToObjectType))
+            .addEquivalenceGroup(typeUtils.getDeclaredType(mapElement, objectType, stringType))
+            .addEquivalenceGroup(typeUtils.getDeclaredType(mapElement, stringType, objectType))
+            .addEquivalenceGroup(typeUtils.getDeclaredType(mapElement, stringType, stringType))
             .addEquivalenceGroup(setOfSetOfObject)
             .addEquivalenceGroup(setOfSetOfString)
             .addEquivalenceGroup(setOfSetOfSetOfObject)
             .addEquivalenceGroup(setOfSetOfSetOfString)
             .addEquivalenceGroup(wildcard)
             // ? extends Object
-            .addEquivalenceGroup(types.getWildcardType(objectType, null))
+            .addEquivalenceGroup(typeUtils.getWildcardType(objectType, null))
             // ? extends String
-            .addEquivalenceGroup(types.getWildcardType(stringType, null))
+            .addEquivalenceGroup(typeUtils.getWildcardType(stringType, null))
             // ? super String
-            .addEquivalenceGroup(types.getWildcardType(null, stringType))
+            .addEquivalenceGroup(typeUtils.getWildcardType(null, stringType))
             // Map<String, Map<String, Set<Object>>>
             .addEquivalenceGroup(
-                types.getDeclaredType(
+                typeUtils.getDeclaredType(
                     mapElement,
                     stringType,
-                    types.getDeclaredType(
-                        mapElement, stringType, types.getDeclaredType(setElement, objectType))))
+                    typeUtils.getDeclaredType(
+                        mapElement, stringType, typeUtils.getDeclaredType(setElement, objectType))))
             .addEquivalenceGroup(FAKE_ERROR_TYPE);
 
     for (TypeKind kind : TypeKind.values()) {
       if (kind.isPrimitive()) {
-        PrimitiveType primitiveType = types.getPrimitiveType(kind);
-        TypeMirror boxedPrimitiveType = types.boxedClass(primitiveType).asType();
-        tester.addEquivalenceGroup(primitiveType, types.unboxedType(boxedPrimitiveType));
+        PrimitiveType primitiveType = typeUtils.getPrimitiveType(kind);
+        TypeMirror boxedPrimitiveType = typeUtils.boxedClass(primitiveType).asType();
+        tester.addEquivalenceGroup(primitiveType, typeUtils.unboxedType(boxedPrimitiveType));
         tester.addEquivalenceGroup(boxedPrimitiveType);
-        tester.addEquivalenceGroup(types.getArrayType(primitiveType));
-        tester.addEquivalenceGroup(types.getArrayType(boxedPrimitiveType));
+        tester.addEquivalenceGroup(typeUtils.getArrayType(primitiveType));
+        tester.addEquivalenceGroup(typeUtils.getArrayType(boxedPrimitiveType));
       }
     }
 
@@ -147,7 +147,7 @@ public class MoreTypesTest {
     for (Class<?> testClass : testClasses) {
       ImmutableList<TypeMirror> equivalenceGroup =
           FluentIterable.from(
-                  elements.getTypeElement(testClass.getCanonicalName()).getEnclosedElements())
+                  eltUtils.getTypeElement(testClass.getCanonicalName()).getEnclosedElements())
               .transform(Element::asType)
               .toList();
       tester.addEquivalenceGroup(equivalenceGroup);
@@ -245,20 +245,20 @@ public class MoreTypesTest {
 
   @Test
   public void testReferencedTypes() {
-    Elements elements = compilationRule.getElements();
+    Elements eltUtils = compilationRule.getElements();
     TypeElement testDataElement =
-        elements.getTypeElement(ReferencedTypesTestData.class.getCanonicalName());
+        eltUtils.getTypeElement(ReferencedTypesTestData.class.getCanonicalName());
     ImmutableMap<String, VariableElement> fieldIndex =
         FluentIterable.from(ElementFilter.fieldsIn(testDataElement.getEnclosedElements()))
             .uniqueIndex(input -> input.getSimpleName().toString());
 
-    TypeElement objectElement = elements.getTypeElement(Object.class.getCanonicalName());
-    TypeElement stringElement = elements.getTypeElement(String.class.getCanonicalName());
-    TypeElement integerElement = elements.getTypeElement(Integer.class.getCanonicalName());
-    TypeElement setElement = elements.getTypeElement(Set.class.getCanonicalName());
-    TypeElement mapElement = elements.getTypeElement(Map.class.getCanonicalName());
+    TypeElement objectElement = eltUtils.getTypeElement(Object.class.getCanonicalName());
+    TypeElement stringElement = eltUtils.getTypeElement(String.class.getCanonicalName());
+    TypeElement integerElement = eltUtils.getTypeElement(Integer.class.getCanonicalName());
+    TypeElement setElement = eltUtils.getTypeElement(Set.class.getCanonicalName());
+    TypeElement mapElement = eltUtils.getTypeElement(Map.class.getCanonicalName());
     TypeElement charSequenceElement =
-        elements.getTypeElement(CharSequence.class.getCanonicalName());
+        eltUtils.getTypeElement(CharSequence.class.getCanonicalName());
 
     assertThat(referencedTypes(fieldIndex, "f1")).containsExactly(objectElement);
     assertThat(referencedTypes(fieldIndex, "f2")).containsExactly(setElement, stringElement);
@@ -283,7 +283,7 @@ public class MoreTypesTest {
     return MoreTypes.referencedTypeElements(field.asType());
   }
 
-  @SuppressWarnings({"unused", "NotNullFieldNotInitialized"}) // types used in compiler tests
+  @SuppressWarnings({"unused", "NotNullFieldNotInitialized"}) // typeUtils used in compiler tests
   private static final class ReferencedTypesTestData {
     Object f1;
     Set<String> f2;
@@ -331,8 +331,8 @@ public class MoreTypesTest {
 
   @Test
   public void asElement() {
-    Elements elements = compilationRule.getElements();
-    TypeElement stringElement = elements.getTypeElement("java.lang.String");
+    Elements eltUtils = compilationRule.getElements();
+    TypeElement stringElement = eltUtils.getTypeElement("java.lang.String");
     assertThat(MoreTypes.asElement(stringElement.asType())).isEqualTo(stringElement);
     TypeParameterElement setParameterElement =
         Iterables.getOnlyElement(
@@ -410,10 +410,10 @@ public class MoreTypesTest {
 
   @Test
   public void testIsExactTypeOf() {
-    Types types = compilationRule.getTypes();
-    PrimitiveType intType = types.getPrimitiveType(TypeKind.INT);
-    TypeMirror integerType = types.boxedClass(intType).asType();
-    WildcardType wildcardType = types.getWildcardType(null, null);
+    Types typeUtils = compilationRule.getTypes();
+    PrimitiveType intType = typeUtils.getPrimitiveType(TypeKind.INT);
+    TypeMirror integerType = typeUtils.boxedClass(intType).asType();
+    WildcardType wildcardType = typeUtils.getWildcardType(null, null);
     expect.that(MoreTypes.isExactTypeOf(int.class, intType)).isTrue();
     expect.that(MoreTypes.isExactTypeOf(Integer.class, integerType)).isTrue();
     expect.that(MoreTypes.isExactTypeOf(Integer.class, intType)).isFalse();

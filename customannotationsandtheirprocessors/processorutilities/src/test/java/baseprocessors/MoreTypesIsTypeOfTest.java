@@ -125,7 +125,7 @@ public class MoreTypesIsTypeOfTest {
 
   @Test
   public void isTypeOf_arrayType() {
-    TypeMirror type = typeUtils.getArrayType(typeElementFor(String.class).asType());
+    TypeMirror type = typeUtils.getArrayType(getTypeElementFor(String.class).asType());
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + String[].class.getCanonicalName())
         .that(MoreTypes.isTypeOf(String[].class, type)).isTrue();
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + Integer[].class.getCanonicalName())
@@ -147,8 +147,8 @@ public class MoreTypesIsTypeOfTest {
   // ArrayList is a list by its father implementing List (checking interface and direct ancestry)
   public void isTypeOf_listLineage() {
     TypeMirror type = typeUtils.getDeclaredType(
-        typeElementFor(ArrayList.class),
-        typeElementFor(String.class).asType()
+        getTypeElementFor(ArrayList.class),
+        getTypeElementFor(String.class).asType()
     );
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + ArrayList.class.getCanonicalName())
         .that(MoreTypes.isTypeOf(ArrayList.class, type)).isTrue();
@@ -171,7 +171,7 @@ public class MoreTypesIsTypeOfTest {
   @Test
   // NavigableMap implements SortedMap and SortedMap implements Map (checking interface ancestry)
   public void isTypeOf_mapLineage() {
-    TypeMirror type = typeElementFor(SortedMap.class).asType();
+    TypeMirror type = getTypeElementFor(SortedMap.class).asType();
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + SortedMap.class.getCanonicalName())
         .that(MoreTypes.isTypeOf(SortedMap.class, type)).isTrue();
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + Map.class.getCanonicalName())
@@ -180,14 +180,14 @@ public class MoreTypesIsTypeOfTest {
         .that(MoreTypes.isTypeOf(NavigableMap.class, type)).isFalse();
 
     //Testing ancestor that is not father
-    type = typeElementFor(NavigableMap.class).asType();
+    type = getTypeElementFor(NavigableMap.class).asType();
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + Map.class.getCanonicalName())
         .that(MoreTypes.isTypeOf(Map.class, type)).isTrue();
   }
 
   @Test
   public void isTypeOf_wildcardCapture() {
-    TypeMirror type = typeUtils.getWildcardType(typeElementFor(SortedMap.class).asType(), null); // ? extends SortedMap
+    TypeMirror type = typeUtils.getWildcardType(getTypeElementFor(SortedMap.class).asType(), null); // ? extends SortedMap
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + SortedMap.class.getCanonicalName())
         .that(MoreTypes.isTypeOf(SortedMap.class, type)).isTrue();
     assertWithMessage("Mirror:\t" + type + "\nClass:\t" + Map.class.getCanonicalName())
@@ -204,22 +204,22 @@ public class MoreTypesIsTypeOfTest {
 
   @Test
   public void isTypeOf_declaredType() {
-    assertTrue(MoreTypes.isClassType(typeElementFor(TestType.class).asType()));
+    assertTrue(MoreTypes.isClassType(getTypeElementFor(TestType.class).asType()));
     assertWithMessage("Mirror:\t" + TestType.class.getCanonicalName() + "\nClass:\t" + TestType.class.getCanonicalName())
-        .that(MoreTypes.isTypeOf(TestType.class, typeElementFor(TestType.class).asType()))
+        .that(MoreTypes.isTypeOf(TestType.class, getTypeElementFor(TestType.class).asType()))
         .isTrue();
     assertWithMessage("Mirror:\t" + TestType.class.getCanonicalName() + "\nClass:\t" + String.class.getCanonicalName())
-        .that(MoreTypes.isTypeOf(String.class, typeElementFor(TestType.class).asType()))
+        .that(MoreTypes.isTypeOf(String.class, getTypeElementFor(TestType.class).asType()))
         .isFalse();
   }
 
   @Test
   public void isTypeOf_typeParameterCapture() {
-    assertTrue(MoreTypes.isClassType(typeElementFor(TestType.class).asType()));
+    assertTrue(MoreTypes.isClassType(getTypeElementFor(TestType.class).asType()));
 
     // Getting type parameter
     ExecutableElement executableElement = MoreElements.asExecutable(
-        typeElementFor(TestType.class).getEnclosedElements().get(0)
+        getTypeElementFor(TestType.class).getEnclosedElements().get(0)
     );
     TypeMirror type = executableElement.getTypeParameters().get(0).asType();
 
@@ -232,7 +232,7 @@ public class MoreTypesIsTypeOfTest {
 
     // Getting parameter type and checking for intersection type
     executableElement = MoreElements.asExecutable(
-        typeElementFor(TestType.class).getEnclosedElements().get(1)
+        getTypeElementFor(TestType.class).getEnclosedElements().get(1)
     );
     type = executableElement.getParameters().get(0).asType();
 
@@ -248,10 +248,10 @@ public class MoreTypesIsTypeOfTest {
   public void isTypeOf_fail() {
     assertFalse(
         MoreTypes.isClassType(
-            typeElementFor(TestType.class).getEnclosedElements().get(0).asType())
+            getTypeElementFor(TestType.class).getEnclosedElements().get(0).asType())
     );
     TypeMirror methodType =
-        typeElementFor(TestType.class).getEnclosedElements().get(1).asType();
+        getTypeElementFor(TestType.class).getEnclosedElements().get(1).asType();
     try {
       MoreTypes.isTypeOf(List.class, methodType);
       fail();
@@ -260,7 +260,7 @@ public class MoreTypesIsTypeOfTest {
   }
 
   // Utility method(s) for this test.
-  private TypeElement typeElementFor(Class<?> clazz) {
+  private TypeElement getTypeElementFor(Class<?> clazz) {
     return eltUtils.getTypeElement(clazz.getCanonicalName());
   }
 }

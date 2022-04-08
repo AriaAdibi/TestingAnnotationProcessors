@@ -1,6 +1,7 @@
 package utils;
 
 import com.google.common.base.Equivalence;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -43,7 +44,7 @@ public final class MoreTypes {
    *        Types.isSameType} never considers wildcards equal, even when comparing a type to itself.
    * </ul>
    *
-   * @return an {@link Equivalence} that can be used to compare types.
+   * @return an {@link Equivalence} that can be used to compare {@linkplain TypeMirror}s.
    */
   public static Equivalence<TypeMirror> equivalence() {
     return TypeEquivalence.INSTANCE;
@@ -64,7 +65,7 @@ public final class MoreTypes {
 
     @Override
     public String toString() {
-      return "MoreTypes.TypeEquivalence";
+      return "MoreTypes.equivalence()";
     }
   }
 
@@ -457,7 +458,7 @@ public final class MoreTypes {
     private final Class<?> clazz;
 
     isTypeOf(Class<?> clazz) {
-      this.clazz = clazz;
+      this.clazz = Preconditions.checkNotNull(clazz);
     }
 
     @Override
@@ -531,7 +532,7 @@ public final class MoreTypes {
     private final Class<?> clazz;
 
     isExactTypeOf(Class<?> clazz) {
-      this.clazz = clazz;
+      this.clazz = Preconditions.checkNotNull(clazz);
     }
 
     @Override
