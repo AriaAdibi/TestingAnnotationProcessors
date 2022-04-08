@@ -15,9 +15,7 @@
  */
 package baseprocessors;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.testing.EquivalenceTester;
-import com.google.common.truth.Correspondence;
 import com.google.testing.compile.CompilationRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,14 +23,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import utils.AnnotationMirrors;
-import utils.MoreElements;
-import utils.MoreTypes;
 
-import javax.lang.model.element.*;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleAnnotationValueVisitor6;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
@@ -43,14 +40,15 @@ import static org.junit.Assert.fail;
  * Tests {@link AnnotationMirrors}.
  */
 @RunWith(JUnit4.class)
+@SuppressWarnings("UnstableApiUsage") //TODO
 public class AnnotationMirrorsTest {
   @Rule public CompilationRule compilationRule = new CompilationRule();
 
-  private Elements elements;
+  private Elements eltUtils;
 
   @Before
   public void setUp() {
-    this.elements = compilationRule.getElements();
+    this.eltUtils = compilationRule.getElements();
   }
 
   @interface SimpleAnnotation {
@@ -302,54 +300,7 @@ public class AnnotationMirrorsTest {
   }
 
   private AnnotationMirror annotationOn(Class<?> clazz) {
-    return getOnlyElement(elements.getTypeElement(clazz.getCanonicalName()).getAnnotationMirrors());
-  }
-
-  @Retention(RetentionPolicy.RUNTIME)
-  private @interface AnnotatingAnnotation {
-  }
-
-
-  @AnnotatingAnnotation
-  @Retention(RetentionPolicy.RUNTIME)
-  private @interface AnnotatedAnnotation1 {
-  }
-
-
-  @AnnotatingAnnotation
-  @Retention(RetentionPolicy.RUNTIME)
-  private @interface AnnotatedAnnotation2 {
-  }
-
-
-  @Retention(RetentionPolicy.RUNTIME)
-  private @interface NotAnnotatedAnnotation {
-  }
-
-
-  @AnnotatedAnnotation1
-  @NotAnnotatedAnnotation
-  @AnnotatedAnnotation2
-  private static final class AnnotatedClass {
-  }
-
-  @Test
-  public void getAnnotatedAnnotations() {
-    TypeElement element = elements.getTypeElement(AnnotatedClass.class.getCanonicalName());
-
-    // Test Class API
-    getAnnotatedAnnotationsAsserts(
-        AnnotationMirrors.getAnnotatedAnnotations(element, AnnotatingAnnotation.class));
-
-    // Test String API
-    String annotatingAnnotationName = AnnotatingAnnotation.class.getCanonicalName();
-    getAnnotatedAnnotationsAsserts(
-        AnnotationMirrors.getAnnotatedAnnotations(element, annotatingAnnotationName));
-
-    // Test TypeElement API
-    TypeElement annotatingAnnotationElement = elements.getTypeElement(annotatingAnnotationName);
-    getAnnotatedAnnotationsAsserts(
-        AnnotationMirrors.getAnnotatedAnnotations(element, annotatingAnnotationElement));
+    return getOnlyElement(eltUtils.getTypeElement(clazz.getCanonicalName()).getAnnotationMirrors());
   }
 
   @Test
@@ -419,14 +370,4 @@ public class AnnotationMirrorsTest {
             "@baseprocessors.AnnotationMirrorsTest.DefaultingOuter(baseprocessors.AnnotationMirrorsTest.SimpleEnum.FOO)");
   }
 
-  private void getAnnotatedAnnotationsAsserts(
-      ImmutableSet<? extends AnnotationMirror> annotatedAnnotations) {
-    assertThat(annotatedAnnotations)
-        .comparingElementsUsing(
-            Correspondence.transforming(
-                (AnnotationMirror a) -> MoreElements.asTypeElement(MoreTypes.asElement(a.getAnnotationType())), "has type"))
-        .containsExactly(
-            elements.getTypeElement(AnnotatedAnnotation1.class.getCanonicalName()),
-            elements.getTypeElement(AnnotatedAnnotation2.class.getCanonicalName()));
-  }
 }
