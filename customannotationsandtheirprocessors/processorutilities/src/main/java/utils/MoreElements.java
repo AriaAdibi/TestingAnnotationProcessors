@@ -1,5 +1,7 @@
 package utils;
 
+import com.google.common.collect.ImmutableSet;
+
 import javax.lang.model.element.*;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleElementVisitor9;
@@ -183,6 +185,60 @@ public class MoreElements {
     return element.getAnnotationMirrors().stream()
         .filter(annotationMirror -> annotationMirror.getAnnotationType().toString().equals(annotationCanonicalName))
         .findAny();
+  }
+
+  /**
+   * Returns all {@linkplain AnnotationMirror annotations} that are present on the given
+   * {@link Element} which are themselves annotated with {@code annotationClass}.
+   *
+   * @param element         the {@linkplain Element} whose annotation mirrors are inquired
+   * @param annotationClass the annotation of type {@linkplain Class} annotating
+   *                        other annotation(s)
+   * @return all {@linkplain AnnotationMirror annotations} that are present on the given
+   * {@link Element} which are themselves annotated with {@code annotationClass}.
+   */
+  public static ImmutableSet<? extends AnnotationMirror> getAnnotatedAnnotations(
+      Element element, Class<? extends Annotation> annotationClass) {
+    String name = annotationClass.getCanonicalName();
+    if (name == null) {
+      return ImmutableSet.of();
+    }
+    return getAnnotatedAnnotations(element, name);
+  }
+
+  /**
+   * Returns all {@linkplain AnnotationMirror annotations} that are present on the given {@link
+   * Element} which are themselves annotated with {@code annotationElement}.
+   *
+   * @param element           the {@linkplain Element} whose annotation mirrors are inquired
+   * @param annotationElement the annotation of type {@linkplain TypeElement} annotating
+   *                          other annotation(s)
+   * @return all {@linkplain AnnotationMirror annotations} that are present on the given
+   * {@link Element} which are themselves annotated with {@code annotationElement}.
+   */
+  public static ImmutableSet<? extends AnnotationMirror> getAnnotatedAnnotations(
+      Element element, TypeElement annotationElement) {
+    return element.getAnnotationMirrors().stream()
+        .filter(input -> MoreElements.isAnnotationPresent(input.getAnnotationType().asElement(), annotationElement))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
+   * Returns all {@linkplain AnnotationMirror annotations} that are present on the given {@link
+   * Element} which are themselves annotated with an annotation whose type's canonical name is
+   * {@code annotationCanonicalName}.
+   *
+   * @param element                 the {@linkplain Element} whose annotation mirrors are inquired
+   * @param annotationCanonicalName the canonical name of the annotation annotating
+   *                                other annotation(s)
+   * @return all {@linkplain AnnotationMirror annotations} that are present on the given
+   * {@link Element} which are themselves annotated with {@code annotationCanonicalName}.
+   */
+  public static ImmutableSet<? extends AnnotationMirror> getAnnotatedAnnotations(
+      Element element, String annotationCanonicalName) {
+    return element.getAnnotationMirrors().stream()
+        .filter(input -> MoreElements.isAnnotationPresent(input.getAnnotationType().asElement(), annotationCanonicalName))
+        .collect(ImmutableSet.toImmutableSet());
   }
 
   /* ********************************************************************* */

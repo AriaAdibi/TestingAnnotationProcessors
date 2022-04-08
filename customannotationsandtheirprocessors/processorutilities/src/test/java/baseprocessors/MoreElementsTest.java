@@ -270,4 +270,62 @@ public class MoreElementsTest {
         .isEqualTo(InnerAnnotation.class.getCanonicalName());
   }
 
+  @Retention(RetentionPolicy.RUNTIME)
+  private @interface AnnotatingAnnotation {
+  }
+
+
+  @AnnotatingAnnotation
+  @Retention(RetentionPolicy.RUNTIME)
+  private @interface AnnotatedAnnotation1 {
+  }
+
+
+  @AnnotatingAnnotation
+  @Retention(RetentionPolicy.RUNTIME)
+  private @interface AnnotatedAnnotation2 {
+  }
+
+
+  @Retention(RetentionPolicy.RUNTIME)
+  private @interface NotAnnotatedAnnotation {
+  }
+
+
+  @AnnotatedAnnotation1
+  @NotAnnotatedAnnotation
+  @AnnotatedAnnotation2
+  private static final class AnnotatedClass {
+  }
+
+  @Test
+  public void getAnnotatedAnnotations() {
+    TypeElement element = eltUtils.getTypeElement(AnnotatedClass.class.getCanonicalName());
+
+    // Test Class API
+    getAnnotatedAnnotationsAsserts(
+        MoreElements.getAnnotatedAnnotations(element, AnnotatingAnnotation.class));
+
+    // Test String API
+    String annotatingAnnotationName = AnnotatingAnnotation.class.getCanonicalName();
+    getAnnotatedAnnotationsAsserts(
+        MoreElements.getAnnotatedAnnotations(element, annotatingAnnotationName));
+
+    // Test TypeElement API
+    TypeElement annotatingAnnotationElement = eltUtils.getTypeElement(annotatingAnnotationName);
+    getAnnotatedAnnotationsAsserts(
+        MoreElements.getAnnotatedAnnotations(element, annotatingAnnotationElement));
+  }
+
+  private void getAnnotatedAnnotationsAsserts(
+      ImmutableSet<? extends AnnotationMirror> annotatedAnnotations) {
+    assertThat(annotatedAnnotations)
+        .comparingElementsUsing(
+            Correspondence.transforming(
+                (AnnotationMirror a) -> MoreElements.asTypeElement(MoreTypes.asElement(a.getAnnotationType())), "has type"))
+        .containsExactly(
+            eltUtils.getTypeElement(MoreElementsTest.AnnotatedAnnotation1.class.getCanonicalName()),
+            eltUtils.getTypeElement(MoreElementsTest.AnnotatedAnnotation2.class.getCanonicalName()));
+  }
+
 }
