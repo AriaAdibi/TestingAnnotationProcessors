@@ -6,6 +6,7 @@
  */
 module processorutilities {
   exports baseprocessors;
+  exports utils;
   requires static com.google.auto.service;
   requires static java.compiler;
   requires static com.google.common;
