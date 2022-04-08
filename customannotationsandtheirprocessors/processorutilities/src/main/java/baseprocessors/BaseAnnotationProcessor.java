@@ -27,16 +27,16 @@ import static com.google.common.collect.Multimaps.filterKeys;
 import static utils.MoreElements.getEnclosingType;
 
 /**
- * An abstract {@link Processor} implementation that defers processing of {@link Element}s to later
- * rounds if they cannot be processed. Packages declared (and annotated) in {@code package-info.java}
- * are tracked as deferred packages, type elements are tracked directly, and all other elements are
- * tracked via their nearest enclosing type.
+ * An abstract {@link Processor} implementation that defers processing of {@link Element}s
+ * to later rounds if they cannot be processed. Packages declared (and annotated) in
+ * {@code package-info.java} and type elements are tracked directly, and all other elements
+ * are tracked via their nearest enclosing type.
  *
  * <h3>Ill-formed elements are deferred</h3>
  *
- * <p>Any annotated element whose nearest enclosing type is not well-formed is deferred, and not passed
- * to any {@code ProcessingStep}. This helps processors to avoid many common pitfalls, such as {@link
- * ErrorType} instances, {@link ClassCastException}s and badly coerced types.
+ * <p>Any annotated element whose nearest enclosing type is not well-formed is deferred, and
+ * not passed to any {@code ProcessingStep}. This helps processors to avoid many common pitfalls,
+ * such as {@link ErrorType} instances, {@link ClassCastException}s and badly coerced types.
  *
  * <p>A non-package element is considered well-formed if its type, type parameters, parameters,
  * default values, supertypes, annotations, and enclosed elements are. Package elements are treated
@@ -51,12 +51,12 @@ import static utils.MoreElements.getEnclosingType;
  * <h3>The usage</h3>
  *
  * <p>Subclasses put their processing logic in {@link ProcessingStep} implementations. The
- * {@code ProcessingStep} is a unit of processing logic that runs under the guarantee that all elements
- * are complete and well-formed. A {@code ProcessingStep} may reject elements that are not ready for
- * processing but might be at a later processing step or round.
+ * {@code ProcessingStep} is a unit of processing logic that runs under the guarantee that all
+ * elements are complete and well-formed. A {@code ProcessingStep} may reject elements that are
+ * not ready for processing but might be at a later processing step or round.
  *
- * <p> The processing steps are passed to the processor by returning them in the {@link #processingSteps()}
- * method, and they have access to
+ * <p> The processing steps are passed to the processor by returning them in the
+ * {@link #processingSteps()} method, and they have access to
  * <ul>
  *    <li>{@code processingEnv}, the {@link ProcessingEnvironment}</li>
  *    <li>{@code eltUtils}, the default element utility class {@link Elements}
@@ -107,7 +107,7 @@ import static utils.MoreElements.getEnclosingType;
  * </ol>
  *
  * <p> Although, it might seem that {@code BaseAnnotationProcessor} handles the independence
- * property, this is not true. As noted above, indirect accesses are not caught by well-formedness
+ * property, this is not the case. As noted above, indirect accesses are not caught by well-formedness
  * validations; and hence, the independence property cannot be fully guaranteed. The user vigilance
  * is still required to make sure that all the aforementioned properties are adhered to. On the
  * positive side, {@code BaseAnnotationProcessor} alleviates the need for most checks and pitfalls
@@ -514,7 +514,7 @@ public abstract class BaseAnnotationProcessor extends AbstractProcessor {
       this.kind = kind;
       this.name = name.toString();
     }
-    
+
     /**
      * An {@link TPEltName} for an element. If {@code element} is a package, it uses the
      * fully qualified name of the package. If it's a type, it uses its fully qualified name.

@@ -5,22 +5,17 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.processing.Generated;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.ExecutableElement;
 import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * {@inheritDoc}
  *
- * <h3>Kapteyn Team</h3>
+ * <h3>Processor dependent utility methods</h3>
  *
- * <p>This base annotation processor also includes frequently used methods for
- * annotation processing within Kapteyn Team.
+ * <p>This base annotation processor includes frequently used
+ * processor-environment dependent utility methods for annotation processing.
  *
  * @author Aria Adibi
  * <p>For the original authors please refere to
@@ -48,7 +43,7 @@ public abstract class UtilizedBaseAnnotationProcessor extends BaseAnnotationProc
   }
 
   /**
-   * Creates a java file in {@code packageName} directory and writes the content
+   * Creates a source java file in {@code packageName} directory and writes the content
    * of the given {@link TypeSpec} in it.
    *
    * @param packageName the package name of new java file.
@@ -56,36 +51,24 @@ public abstract class UtilizedBaseAnnotationProcessor extends BaseAnnotationProc
    */
   public void javaFileWriteTo(String packageName, TypeSpec typeSpec) {
     JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+    javaFileWriteTo(javaFile);
+  }
 
+  /**
+   * Receives a {@link JavaFile} and creates a source java file representing
+   * it using the processors' {@link javax.annotation.processing.Filer}.
+   * Reports if IO problem occurs.
+   *
+   * @param javaFile the java file to be created.
+   */
+  public void javaFileWriteTo(JavaFile javaFile) {
     try {
       javaFile.writeTo(filer);
     } catch (IOException e) {
-      messager.printMessage(Diagnostic.Kind.ERROR, "Annotation processor " + this.getClass().toString() + "'s javaFileWriteTo() failed unexpectedly:: " + e.getMessage());
+      messager.printMessage(Diagnostic.Kind.ERROR, "(IOExceptione) Annotation processor " +
+          this.getClass().toString() + "'s javaFileWriteTo() failed unexpectedly:: " + e.getMessage());
       e.printStackTrace();
     }
-  }
-
-  /* ********************************************************************* */
-  /* Common processor dependent utilities ******************************** */
-  /* ********************************************************************* */
-  
-  /**
-   * Returns the value (possibly default value) of the {@code memberName} member
-   * element of annotation {@code annotationMirror}, and {@linkplain Optional#empty()}
-   * if no such value/member element exists.
-   *
-   * @param memberName       the name of the member element of {@code annotationMirror}
-   * @param annotationMirror the investigated {@linkplain AnnotationMirror}
-   */
-  public <T> T getMemberValueOfAnnotation(AnnotationMirror annotationMirror, String memberName) {
-    Map<? extends ExecutableElement, ? extends AnnotationValue> annotEltVals = eltUtils.getElementValuesWithDefaults(annotationMirror);
-
-    //noinspection unchecked
-    return (T) annotEltVals.entrySet().stream()
-        .filter(entry -> entry.getKey().getSimpleName().toString().equals(memberName))
-        .findAny()
-        .orElseThrow()
-        .getValue().getValue();
   }
 
 }
